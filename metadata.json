@@ -1,0 +1,8 @@
+{
+  "name": "Remix Remix Remix Remix Remix Remix Gaming Tournament \u0026 Scrim Esports Platform",
+  "description": "Competitive esports tournament platform and squad scrim organizer with live standings, 15 customizable themes, and automated wallet payouts.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

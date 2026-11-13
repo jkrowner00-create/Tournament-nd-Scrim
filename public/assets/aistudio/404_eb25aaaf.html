@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>404 - Page Not Found | Gaming Tournament</title>
+    
+    <!-- Icons & Fonts -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&family=Rajdhani:wght@700;800&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary-bg: #000000;
+            --secondary-bg: #121212;
+            --glass-bg: rgba(20, 20, 20, 0.75);
+            --accent-gradient: linear-gradient(90deg, #FBBF24 0%, #FFD700 100%);
+            --glow-color: #FFD700;
+            --glow-shadow: rgba(255, 215, 0, 0.4);
+            --text-primary: #F5F5F5;
+            --text-secondary: #BDBDBD;
+            --border-color: #996515;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--primary-bg);
+            background-image:
+                radial-gradient(circle at 50% 30%, rgba(251, 191, 36, 0.12) 0%, transparent 60%),
+                radial-gradient(circle at 15% 85%, rgba(24, 239, 255, 0.08) 0%, transparent 40%),
+                radial-gradient(circle at 85% 15%, rgba(192, 72, 240, 0.08) 0%, transparent 40%);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+
+        .notfound-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 40px 24px;
+            max-width: 480px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.7), 0 0 25px rgba(255, 215, 0, 0.15);
+            animation: fadeIn 0.5s ease-out;
+            position: relative;
+        }
+
+        .glitch-code {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 6.5rem;
+            font-weight: 900;
+            line-height: 1;
+            letter-spacing: 4px;
+            background: var(--accent-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 30px var(--glow-shadow);
+            margin-bottom: 5px;
+            position: relative;
+            display: inline-block;
+        }
+
+        .mission-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(239, 68, 68, 0.15);
+            color: #ef4444;
+            border: 1px solid #ef4444;
+            padding: 4px 14px;
+            border-radius: 50px;
+            font-size: 0.78rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-bottom: 18px;
+            animation: pulse 1.8s infinite;
+        }
+
+        .notfound-title {
+            font-size: 1.35rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .notfound-desc {
+            font-size: 0.88rem;
+            color: var(--text-secondary);
+            line-height: 1.6;
+            margin-bottom: 30px;
+        }
+
+        .btn-custom {
+            border-radius: 10px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            padding: 13px 20px;
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.25s ease;
+            text-decoration: none;
+            cursor: pointer;
+            width: 100%;
+        }
+
+        .btn-custom-primary {
+            background: var(--accent-gradient);
+            color: #000000 !important;
+            box-shadow: 0 0 15px var(--glow-shadow);
+        }
+
+        .btn-custom-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 25px var(--glow-shadow);
+            filter: brightness(1.15);
+        }
+
+        .btn-custom-secondary {
+            background: var(--secondary-bg);
+            color: var(--text-primary) !important;
+            border: 1px solid var(--border-color);
+        }
+
+        .btn-custom-secondary:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: var(--glow-color);
+            color: var(--glow-color) !important;
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.5); }
+            70% { box-shadow: 0 0 0 8px rgba(239, 68, 68, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="notfound-card">
+        <div class="mission-badge">
+            <i class="bi bi-crosshair"></i> OUT OF PLAY ZONE
+        </div>
+
+        <div class="glitch-code">404</div>
+
+        <h1 class="notfound-title">Lost in the Arena</h1>
+        <p class="notfound-desc">
+            The page you're trying to reach doesn't exist, was relocated, or has been eliminated from the tournament.
+        </p>
+
+        <div class="d-grid gap-2">
+            <a href="/" class="btn-custom btn-custom-primary">
+                <i class="bi bi-house-door-fill"></i> Return to Lobby
+            </a>
+            <button onclick="window.history.back()" class="btn-custom btn-custom-secondary">
+                <i class="bi bi-arrow-left"></i> Previous Page
+            </button>
+        </div>
+    </div>
+
+</body>
+</html>

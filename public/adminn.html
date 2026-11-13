@@ -1,0 +1,2252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - Gaming Tournament</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+        /* --- Black & Gold Glassmorphism Theme (Matching Index.html) --- */
+        :root {
+            --primary-bg: #000000;
+            --secondary-bg: #121212;
+            --card-bg: #121212;
+            --glass-bg: rgba(20, 20, 20, 0.7);
+            --accent-gradient: linear-gradient(90deg, #FBBF24 0%, #FFD700 100%);
+            --glow-color-1: #FFD700;
+            --glow-color-2: rgba(255, 215, 0, 0.4);
+            --text-primary: #F5F5F5;
+            --text-secondary: #BDBDBD;
+            --border-color: #996515;
+            --success-color: #22C55E;
+            --danger-color: #EF4444;
+            --warning-color: #FBBF24;
+            --info-color: #FBBF24;
+            --placeholder-bg: rgba(255, 215, 0, 0.1);
+        }
+
+        body {
+            background-color: var(--primary-bg);
+            background-image:
+                radial-gradient(circle at 10% 10%, rgba(24, 239, 255, 0.08) 0%, transparent 30%),
+                radial-gradient(circle at 90% 80%, rgba(192, 72, 240, 0.08) 0%, transparent 40%);
+            color: var(--text-primary);
+            font-family: 'Poppins', sans-serif;
+            padding-top: 75px;
+            padding-bottom: 85px;
+            min-height: 100vh;
+        }
+
+        .app-header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 65px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 15px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+            z-index: 1030;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .header-left { display: flex; align-items: center; gap: 10px; }
+        .menu-toggle-btn { background: none; border: none; color: var(--warning-color); font-size: 1.8rem; padding: 0 5px; margin-left: -5px; }
+        .header-logo { width: 35px; height: 35px; border-radius: 50%; background-color: #fff; object-fit: cover; border: 1px solid var(--warning-color); }
+        .header-title { font-size: 1rem; font-weight: 600; color: var(--text-primary); line-height: 1.2; }
+        .header-right { display: flex; align-items: center; gap: 15px; }
+        .admin-email-header { font-size: 0.8rem; color: var(--text-secondary); display: none; }
+        @media (min-width: 576px) { .admin-email-header { display: inline; } }
+
+        .offcanvas-start {
+            background-color: var(--secondary-bg) !important;
+            color: var(--text-primary) !important;
+            width: 270px !important;
+            border-right: 1px solid var(--border-color) !important;
+        }
+
+        .offcanvas-header { border-bottom: 1px solid var(--border-color); padding: 1rem 1.2rem; }
+        .offcanvas-title h5 { color: var(--warning-color); margin-bottom: 0; font-size: 1.1rem; font-weight: 600; }
+        .btn-close-white { filter: invert(1) grayscale(100%) brightness(200%); }
+        .offcanvas-body { padding: 0; display: flex; flex-direction: column; height: calc(100% - 56px); }
+        .offcanvas-body .nav { flex-grow: 1; overflow-y: auto; }
+        .offcanvas-body .nav-link { color: var(--text-secondary); padding: 0.85rem 1.2rem; border-left: 3px solid transparent; font-size: 0.92rem; border-radius: 6px; margin: 2px 8px; }
+        .offcanvas-body .nav-link.active, .offcanvas-body .nav-link:hover { color: var(--warning-color); background-color: rgba(255, 215, 0, 0.08); border-left-color: var(--warning-color); font-weight: 600; }
+        .offcanvas-body .nav-link i { margin-right: 12px; width: 20px; text-align: center; font-size: 1.1rem; }
+
+        .main-content { padding: 15px; }
+        .section { display: none; animation: fadeIn 0.4s ease-out; }
+        .section.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .login-container { max-width: 420px; margin: 8vh auto; background: var(--glass-bg); backdrop-filter: blur(12px); padding: 2rem; border-radius: 16px; border: 1px solid var(--border-color); box-shadow: 0 4px 30px rgba(0,0,0,0.5); }
+
+        #adminLoader { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.75); display: flex; justify-content: center; align-items: center; z-index: 9999; display: none; }
+        .spinner-border { color: var(--warning-color); }
+
+        /* Glassmorphism Cards */
+        .card, .custom-card {
+            background: var(--glass-bg) !important;
+            border-radius: 16px !important;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3) !important;
+            backdrop-filter: blur(12px) !important;
+            -webkit-backdrop-filter: blur(12px) !important;
+            border: 1px solid var(--border-color) !important;
+            color: var(--text-primary) !important;
+            margin-bottom: 1.25rem;
+        }
+
+        .card-title { color: var(--text-primary); font-weight: 600; }
+
+        .table-responsive { overflow-x: auto; }
+        .table { background-color: transparent; color: var(--text-primary) !important; border-color: var(--border-color) !important; margin-bottom: 0; }
+        .table > :not(caption) > * > * { background-color: transparent !important; border-bottom-color: var(--border-color); }
+        .table th { color: var(--warning-color) !important; font-weight: 600; white-space: nowrap; padding: 0.8rem 1rem; border-bottom: 1px solid var(--border-color) !important; }
+        .table td { vertical-align: middle; white-space: nowrap; padding: 0.75rem 1rem; border-bottom: 1px solid rgba(153, 101, 21, 0.3) !important; }
+        .table td .text-muted { color: var(--text-secondary) !important; }
+        .table td small.text-muted { font-size: 0.85em; }
+        .table-hover > tbody > tr:hover > * { background-color: rgba(255, 215, 0, 0.05) !important; color: var(--text-primary); }
+        .action-buttons button, .action-buttons a { margin-right: 5px; margin-bottom: 5px; }
+
+        /* Glassmorphism Modals */
+        .modal-content { background: rgba(18, 18, 18, 0.95) !important; backdrop-filter: blur(16px) !important; -webkit-backdrop-filter: blur(16px) !important; color: var(--text-primary) !important; border: 1px solid var(--border-color) !important; border-radius: 18px !important; }
+        .modal-header { border-bottom-color: var(--border-color) !important; }
+        .modal-footer { border-top-color: var(--border-color) !important; }
+        .modal-body label { margin-bottom: 0.5rem; font-weight: 500; color: var(--text-secondary); }
+
+        /* Form Controls with Gold Glow */
+        .form-control, .form-select { background-color: var(--secondary-bg) !important; color: var(--text-primary) !important; border: 1px solid var(--border-color) !important; border-radius: 10px !important; }
+        .form-control:focus, .form-select:focus { background-color: var(--secondary-bg) !important; color: var(--text-primary) !important; border-color: var(--warning-color) !important; box-shadow: 0 0 0 0.2rem rgba(251, 191, 36, 0.25) !important; }
+        .form-control::placeholder { color: var(--text-secondary); opacity: 0.7; }
+        .form-control:disabled, .form-select:disabled { background-color: #1a1a1a !important; opacity: 0.6; }
+        .form-control[type="file"] { background-color: var(--secondary-bg) !important; color: var(--text-secondary) !important; border: 1px solid var(--border-color) !important; }
+
+        .imgbb-upload-status { display: none; margin-top: 5px; font-size: 0.85rem; color: var(--text-secondary); }
+        .table img.preview-img { max-width: 60px; height: 40px; object-fit: cover; border-radius: 6px; cursor: pointer; border: 1px solid var(--border-color); }
+
+        /* Glowing Buttons */
+        .btn-primary, .btn-success { background: var(--accent-gradient) !important; color: #000000 !important; border: none !important; font-weight: 600 !important; box-shadow: 0 0 15px var(--glow-color-1), 0 0 20px var(--glow-color-2) !important; border-radius: 10px !important; transition: all 0.3s ease !important; }
+        .btn-primary:hover, .btn-success:hover { transform: translateY(-2px) scale(1.02); filter: brightness(1.2); }
+        .btn-secondary, .btn-outline-danger { border-radius: 10px !important; }
+
+        .text-bg-primary { background-color: #3B82F6 !important; }
+        .text-bg-info { background-color: #0ea5e9 !important; }
+        .text-bg-warning { background-color: #f59e0b !important; color: #000 !important; }
+        .text-bg-success { background-color: #10b981 !important; }
+        .text-bg-danger { background-color: #ef4444 !important; }
+        .text-bg-secondary { background-color: #6b7280 !important; }
+        .text-bg-dark { background-color: #262626 !important; border: 1px solid var(--border-color); }
+
+        .nav-tabs .nav-link { color: var(--text-secondary); border-color: var(--border-color); border-bottom-color: transparent; margin-bottom: -1px; border-radius: 8px 8px 0 0; }
+        .nav-tabs .nav-link.active { color: var(--warning-color); background-color: var(--card-bg); border-color: var(--border-color); border-bottom-color: var(--card-bg); font-weight: 600; }
+        .nav-tabs { border-bottom-color: var(--border-color); }
+
+        textarea.form-control { min-height: 120px; }
+        .copy-btn { cursor: pointer; opacity: 0.7; transition: opacity 0.2s; }
+        .copy-btn:hover { opacity: 1; }
+        .status-badge { font-size: 0.8em; padding: 0.3em 0.68em; border-radius: 0.25rem; font-weight: 600; }
+
+        .loading-placeholder td > div { background-color: var(--placeholder-bg); border-radius: 4px; min-height: 1.2em; animation: placeholder-glow 2s ease-in-out infinite; }
+        @keyframes placeholder-glow { 0% { background-color: var(--placeholder-bg); } 50% { background-color: rgba(255, 215, 0, 0.2); } 100% { background-color: var(--placeholder-bg); } }
+
+        .dash-card-icon { font-size: 2rem; opacity: 0.8; position: absolute; right: 15px; top: 50%; transform: translateY(-50%); color: var(--warning-color); }
+        .card-body { position: relative; }
+
+        /* Index-style Admin Bottom Navigation Bar */
+        .admin-bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 70px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-around;
+            z-index: 1020;
+        }
+
+        .admin-nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-secondary);
+            flex-grow: 1;
+            padding: 6px 0;
+            border: none;
+            background: none;
+            cursor: pointer;
+            transition: all 0.2s ease-in-out;
+            text-decoration: none;
+        }
+
+        .admin-nav-item i { font-size: 1.4rem; margin-bottom: 3px; }
+        .admin-nav-item span { font-size: 0.7rem; font-weight: 500; }
+        .admin-nav-item.active { color: var(--warning-color); transform: translateY(-3px); font-weight: 600; }
+    </style>
+</head>
+<body>
+
+    <div id="adminLoader">
+        <div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div>
+    </div>
+
+    <!-- Login / Setup Area -->
+    <div id="auth-container">
+        <div id="admin-setup-section" style="display: none;">
+            <div class="container login-container"> <div class="card shadow"> <div class="card-body p-4"> <h2 class="card-title text-center mb-4">Admin Account Setup</h2> <p class="text-muted text-center small mb-3">Create the primary admin account.</p> <form id="adminSetupForm"> <div class="mb-3"> <label for="setupEmail" class="form-label">Admin Email</label> <input type="email" class="form-control" id="setupEmail" required> </div> <div class="mb-3"> <label for="setupPassword" class="form-label">Admin Password (min 6 chars)</label> <input type="password" class="form-control" id="setupPassword" required minlength="6"> </div> <div id="adminSetupStatus" class="mt-3"></div> <div class="d-grid"> <button type="submit" class="btn btn-success">Create Admin Account</button> </div> </form> </div> </div> </div>
+        </div>
+        <div id="admin-login-section" style="display: none;">
+            <div class="container login-container"> <div class="card shadow"> <div class="card-body p-4"> <h2 class="card-title text-center mb-4">Admin Login</h2> <form id="adminLoginForm"> <div class="mb-3"> <label for="adminEmail" class="form-label">Email</label> <input type="email" class="form-control" id="adminEmail" required> </div> <div class="mb-3"> <label for="adminPassword" class="form-label">Password</label> <input type="password" class="form-control" id="adminPassword" required> </div> <div id="adminLoginStatus" class="mt-3"></div> <div class="d-grid"> <button type="submit" class="btn btn-primary">Login</button> </div> </form> </div> </div> </div>
+        </div>
+    </div>
+
+    <!-- Main Admin Panel Area -->
+    <div id="admin-main-area" style="display: none;">
+        <header class="app-header">
+            <div class="header-left">
+                <button class="menu-toggle-btn" type="button" data-bs-toggle="offcanvas" data-bs-target="#adminSidebar" aria-controls="adminSidebar">
+                    <i class="bi bi-list"></i>
+                </button>
+                <img src="https://via.placeholder.com/35/1E293B/94A3B8?text=L" alt="Logo" class="header-logo" id="adminHeaderLogo" style="display:none;">
+                <h1 class="header-title ms-1" id="adminPageTitle">Dashboard</h1>
+            </div>
+            <div class="header-right">
+                <a href="/" class="btn btn-sm btn-outline-warning me-2"><i class="bi bi-controller"></i> Player Arena</a>
+                <span class="admin-email-header" id="adminUserEmailShort"></span>
+                <button class="btn btn-sm btn-outline-danger" id="adminLogoutBtnHeader"><i class="bi bi-box-arrow-right"></i> Logout</button>
+            </div>
+        </header>
+
+        <div class="offcanvas offcanvas-start" tabindex="-1" id="adminSidebar" aria-labelledby="adminSidebarLabel">
+            <div class="offcanvas-header">
+                <h5 class="offcanvas-title" id="adminSidebarLabel">Admin Menu</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+            </div>
+            <div class="offcanvas-body">
+                <ul class="nav flex-column">
+                    <li class="nav-item"> <a class="nav-link active" href="#" data-section="dashboard-section"><i class="bi bi-speedometer2"></i> Dashboard</a> </li>
+                    <li class="nav-item"> <a class="nav-link" href="#" data-section="games-section"><i class="bi bi-controller"></i> Games</a> </li>
+                    <li class="nav-item"> <a class="nav-link" href="#" data-section="promotions-section"><i class="bi bi-images"></i> Promotions</a> </li>
+                    <li class="nav-item"> <a class="nav-link" href="#" data-section="tournaments-section"><i class="bi bi-trophy"></i> Tournaments</a> </li>
+                    <li class="nav-item"> <a class="nav-link" href="#" data-section="users-section"><i class="bi bi-people"></i> Users</a> </li>
+                    <li class="nav-item"> <a class="nav-link" href="#" data-section="transactions-section"><i class="bi bi-receipt"></i> Transactions</a> </li>
+                    <li class="nav-item"> <a class="nav-link" href="#" data-section="withdrawals-section"><i class="bi bi-cash-coin"></i> Withdrawals <span class="badge bg-danger ms-1" id="pendingWithdrawalCountBadge" style="display: none;">0</span></a> </li>
+                    <li class="nav-item"> <a class="nav-link" href="#" data-section="deposits-section"><i class="bi bi-wallet2"></i> Deposit Requests <span class="badge bg-warning ms-1" id="pendingDepositCountBadge" style="display: none;">0</span></a> </li>
+                    <li class="nav-item"> <a class="nav-link" href="#" data-section="notifications-section"><i class="bi bi-bell"></i> Notifications</a> </li>
+                    <li class="nav-item"> <a class="nav-link" href="#" data-section="support-tickets-section"><i class="bi bi-headset"></i> Support Tickets</a> </li>
+                    <li class="nav-item"> <a class="nav-link" href="#" data-section="settings-section"><i class="bi bi-gear"></i> Settings</a> </li>
+                    <li class="nav-item"> <a class="nav-link" href="#" data-section="theme-section"><i class="bi bi-palette-fill"></i> Theme</a> </li>
+                    <li class="nav-item"> <a class="nav-link" href="#" data-section="payment-methods-section"><i class="bi bi-qr-code"></i> Payment Methods</a> </li>
+                    <li class="nav-item"> <a class="nav-link" href="#" data-section="payment-ids-section"><i class="bi bi-ticket-detailed"></i> Payment IDs</a> </li>
+                </ul>
+                <div class="mt-auto p-3 border-top border-secondary">
+                     <button class="btn btn-warning btn-sm w-100 mb-2" id="addDemoDataBtn"><i class="bi bi-database-add"></i> Add Demo Data</button>
+                     <small class="text-muted d-block text-center">Adds sample data if DB is empty.</small>
+                </div>
+            </div>
+        </div>
+
+        <main class="main-content" id="adminMainContent">
+            <!-- Dashboard Section -->
+            <section id="dashboard-section" class="section active">
+                <h2>Dashboard Overview</h2>
+                <div class="row">
+                    <!-- Row 1 -->
+                    <div class="col-lg-3 col-md-6 mb-4">
+                        <div class="card text-bg-primary shadow-sm h-100">
+                            <div class="card-body">
+                                <h5 class="card-title">Total Users</h5>
+                                <p class="card-text fs-3 fw-bold mb-0" id="statTotalUsers">--</p>
+                                <i class="bi bi-people-fill dash-card-icon"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-md-6 mb-4">
+                        <div class="card text-bg-info shadow-sm h-100">
+                            <div class="card-body">
+                                <h5 class="card-title">Active/Upcoming Tournaments</h5>
+                                <p class="card-text fs-3 fw-bold mb-0" id="statActiveTournaments">--</p>
+                                <i class="bi bi-trophy-fill dash-card-icon"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-md-6 mb-4">
+                        <div class="card text-bg-warning shadow-sm h-100">
+                            <div class="card-body">
+                                <h5 class="card-title">Pending Withdrawals</h5>
+                                <p class="card-text fs-3 fw-bold mb-0" id="statPendingWithdrawals">--</p>
+                                <i class="bi bi-hourglass-split dash-card-icon"></i>
+                            </div>
+                        </div>
+                    </div>
+                     <div class="col-lg-3 col-md-6 mb-4">
+                        <div class="card text-bg-success shadow-sm h-100">
+                            <div class="card-body">
+                                <h5 class="card-title">Completed Withdrawals</h5>
+                                <p class="card-text fs-3 fw-bold mb-0" id="statCompletedWithdrawals">--</p>
+                                <i class="bi bi-check-circle-fill dash-card-icon"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Row 2 -->
+                    <div class="col-lg-3 col-md-6 mb-4">
+                        <div class="card text-bg-dark shadow-sm h-100">
+                            <div class="card-body">
+                                <h5 class="card-title">Rejected Withdrawals</h5>
+                                <p class="card-text fs-3 fw-bold mb-0" id="statRejectedWithdrawals">--</p>
+                                <i class="bi bi-x-octagon-fill dash-card-icon"></i>
+                            </div>
+                        </div>
+                    </div>
+                     <div class="col-lg-3 col-md-6 mb-4">
+                        <div class="card text-bg-secondary shadow-sm h-100">
+                            <div class="card-body">
+                                <h5 class="card-title">Total Games</h5>
+                                <p class="card-text fs-3 fw-bold mb-0" id="statTotalGames">--</p>
+                                <i class="bi bi-controller dash-card-icon"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-md-6 mb-4">
+                        <div class="card text-bg-secondary shadow-sm h-100">
+                            <div class="card-body">
+                                <h5 class="card-title">Total Promotions</h5>
+                                <p class="card-text fs-3 fw-bold mb-0" id="statTotalPromotions">--</p>
+                                <i class="bi bi-images dash-card-icon"></i>
+                            </div>
+                        </div>
+                    </div>
+                     <div class="col-lg-3 col-md-6 mb-4">
+                        <div class="card text-bg-secondary shadow-sm h-100">
+                            <div class="card-body">
+                                <h5 class="card-title">Finished Tournaments</h5>
+                                <p class="card-text fs-3 fw-bold mb-0" id="statFinishedTournaments">--</p>
+                                <i class="bi bi-flag-fill dash-card-icon"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div id="dashboardStatus"></div>
+            </section>
+
+            <!-- Games Section -->
+            <section id="games-section" class="section">
+                <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+                    <h2>Manage Games</h2>
+                    <button class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#gameModal" id="addNewGameBtn"><i class="bi bi-plus-circle"></i> Add Game</button>
+                </div>
+                 <div id="gamesStatus" class="mb-3"></div>
+                <div class="table-responsive card">
+                    <table class="table table-dark table-hover mb-0">
+                        <thead> <tr><th>Image</th><th>Name</th><th>Game ID</th><th>Actions</th></tr> </thead>
+                        <tbody id="gamesTableBody">
+                            <tr class="loading-placeholder"><td colspan="4"><div class="placeholder w-100 py-3"></div></td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Promotions Section -->
+            <section id="promotions-section" class="section">
+                <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+                     <h2>Manage Promotions</h2>
+                     <button class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#promotionModal" id="addNewPromotionBtn"><i class="bi bi-plus-circle"></i> Add Promotion</button>
+                </div>
+                <div id="promotionsStatus" class="mb-3"></div>
+                <div class="table-responsive card">
+                    <table class="table table-dark table-hover mb-0">
+                         <thead> <tr><th>Image</th><th>Link</th><th>Actions</th></tr> </thead>
+                         <tbody id="promotionsTableBody">
+                            <tr class="loading-placeholder"><td colspan="3"><div class="placeholder w-100 py-3"></div></td></tr>
+                         </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Tournaments Section -->
+            <section id="tournaments-section" class="section">
+                 <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+                     <h2>Manage Tournaments</h2>
+                     <div>
+                         <button class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#addTournamentModal" id="addNewTournamentBtn"><i class="bi bi-plus-circle"></i> Add Tournament</button>
+                     </div>
+                 </div>
+                 <div id="tournamentsStatus" class="mb-3"></div>
+                 <div class="table-responsive card">
+                     <table class="table table-dark table-hover mb-0">
+                         <thead> <tr><th>Name</th><th>Game</th><th>Fee</th><th>Prize</th><th>Start Time</th><th>Status</th><th>Players</th><th>Actions</th></tr> </thead>
+                         <tbody id="tournamentsTableBody">
+                            <tr class="loading-placeholder"><td colspan="8"><div class="placeholder w-100 py-3"></div></td></tr>
+                         </tbody>
+                    </table>
+                 </div>
+            </section>
+
+            <!-- Users Section -->
+            <section id="users-section" class="section">
+                <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+                    <h2>Manage Users</h2>
+                    <div class="d-flex gap-2">
+                        <input type="search" class="form-control form-control-sm" id="userSearchInput" placeholder="Search by name, mobile, IGN...">
+                        <button class="btn btn-success btn-sm flex-shrink-0" data-bs-toggle="modal" data-bs-target="#addUserModal">
+                            <i class="bi bi-person-plus-fill"></i> Add User
+                        </button>
+                    </div>
+                </div>
+                 <div id="usersStatus" class="mb-3"></div>
+                <div class="table-responsive card">
+                    <table class="table table-dark table-hover mb-0">
+                      <thead>
+            <tr><th>UID</th><th>Display Name</th><th>Mobile</th><th>Balance</th><th>Status</th><th>Actions</th></tr>
+        </thead>
+                        <tbody id="usersTableBody">
+                            <tr class="loading-placeholder"><td colspan="6"><div class="placeholder w-100 py-3"></div></td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Transactions Section -->
+            <section id="transactions-section" class="section card"> 
+                <div class="card-body"> 
+                    <h2 class="card-title">User Transactions Log</h2> 
+                    <p class="text-muted">Live audit trail of deposits, match winnings, fee deductions, and withdrawal payouts.</p>
+                    <div id="transactionsContainer" class="table-responsive">
+                        <table class="table table-dark table-hover mb-0">
+                            <thead><tr><th>Time</th><th>User / UID</th><th>Type</th><th>Amount</th><th>Status</th><th>Description</th></tr></thead>
+                            <tbody id="transactionsTableBody"><tr><td colspan="6" class="text-center p-3 text-muted">Select a user or view all recent records.</td></tr></tbody>
+                        </table>
+                    </div>
+                </div> 
+            </section>
+
+            <!-- Deposit Requests Section -->
+            <section id="deposits-section" class="section">
+                <h2>Manage Deposit Requests</h2>
+                 <div id="depositsStatus" class="mb-3"></div>
+                <div class="card">
+                    <div class="card-header bg-secondary border-bottom border-dark"> <ul class="nav nav-tabs card-header-tabs"> <li class="nav-item"><button class="nav-link active" data-status="pending" type="button">Pending</button></li> <li class="nav-item"><button class="nav-link" data-status="completed" type="button">Completed</button></li> <li class="nav-item"><button class="nav-link" data-status="rejected" type="button">Rejected</button></li> </ul> </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-dark table-hover mb-0">
+                                  <thead><tr><th>Requested At</th><th>User</th><th>Amount</th><th>Proof</th><th>Actions</th></tr></thead>
+                                <tbody id="depositsTableBody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                 </div>
+            </section>
+
+            <!-- Withdrawals Section -->
+            <section id="withdrawals-section" class="section">
+                <h2>Manage Withdrawals</h2>
+                 <div id="withdrawalsStatus" class="mb-3"></div>
+                <div class="card">
+                    <div class="card-header bg-secondary border-bottom border-dark"> <ul class="nav nav-tabs card-header-tabs" id="withdrawalTabs" role="tablist"> <li class="nav-item" role="presentation"><button class="nav-link active" id="pending-tab" data-bs-toggle="tab" data-bs-target="#pendingWithdrawalsTab" type="button" role="tab">Pending</button></li> <li class="nav-item" role="presentation"><button class="nav-link" id="completed-tab" data-bs-toggle="tab" data-bs-target="#completedWithdrawalsTab" type="button" role="tab">Completed</button></li> <li class="nav-item" role="presentation"><button class="nav-link" id="rejected-tab" data-bs-toggle="tab" data-bs-target="#rejectedWithdrawalsTab" type="button" role="tab">Rejected</button></li> </ul> </div>
+                    <div class="card-body tab-content p-0">
+                        <div class="tab-pane fade show active" id="pendingWithdrawalsTab" role="tabpanel">
+                            <div class="table-responsive">
+                                <table class="table table-dark table-hover mb-0">
+                                    <thead><tr><th>Requested At</th><th>User</th><th>Amount</th><th>Method</th><th>Actions</th></tr></thead>
+                                    <tbody id="pendingWithdrawalsTableBody">
+                                        <tr class="loading-placeholder"><td colspan="5"><div class="placeholder w-100 py-3"></div></td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="tab-pane fade" id="completedWithdrawalsTab" role="tabpanel">
+                            <div class="table-responsive">
+                                <table class="table table-dark table-hover mb-0">
+                                    <thead><tr><th>Requested At</th><th>Processed At</th><th>User</th><th>Amount</th><th>Method</th><th>Admin Note</th></tr></thead>
+                                    <tbody id="completedWithdrawalsTableBody"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="tab-pane fade" id="rejectedWithdrawalsTab" role="tabpanel">
+                            <div class="table-responsive">
+                                <table class="table table-dark table-hover mb-0">
+                                    <thead><tr><th>Requested At</th><th>Processed At</th><th>User</th><th>Amount</th><th>Method</th><th>Reason</th></tr></thead>
+                                    <tbody id="rejectedWithdrawalsTableBody"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                 </div>
+            </section>
+
+            <!-- Support Tickets / Live Chat Section -->
+            <section id="support-tickets-section" class="section">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h2>Live Support Chat Center</h2>
+                    <button class="btn btn-primary btn-sm" onclick="loadSupportThreads()"><i class="bi bi-arrow-clockwise"></i> Refresh</button>
+                </div>
+                <div class="row g-3" style="min-height: 500px;">
+                    <!-- User Threads List -->
+                    <div class="col-md-4">
+                        <div class="card h-100 p-2">
+                            <h6 class="fw-bold p-2 mb-1 border-bottom border-secondary"><i class="bi bi-people-fill me-1 text-warning"></i> Active Chats</h6>
+                            <div id="adminChatThreadsList" style="max-height: 480px; overflow-y: auto;">
+                                <div class="text-center p-3 text-secondary">Loading conversations...</div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Real-Time Chat Conversation Window -->
+                    <div class="col-md-8">
+                        <div class="card h-100 d-flex flex-column p-0">
+                            <div class="p-3 border-bottom border-secondary d-flex justify-content-between align-items-center" id="adminActiveChatHeader">
+                                <span class="text-secondary small">Select a user conversation from the left to start live chatting.</span>
+                            </div>
+                            <div class="p-3 flex-grow-1" id="adminChatConversationBox" style="overflow-y: auto; max-height: 380px; min-height: 300px; display: flex; flex-direction: column; gap: 8px;">
+                                <div class="text-center my-auto text-secondary">No conversation selected.</div>
+                            </div>
+                            <div class="p-2 border-top border-secondary">
+                                <form id="adminChatSendForm" class="d-flex gap-2" onsubmit="event.preventDefault(); sendAdminLiveReply();">
+                                    <input type="text" class="form-control" id="adminChatReplyInput" placeholder="Type your reply here..." disabled required>
+                                    <button type="submit" class="btn btn-primary px-3" id="adminChatSendBtn" disabled><i class="bi bi-send-fill"></i></button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Notifications Section -->
+            <section id="notifications-section" class="section">
+                <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+                    <h2>Manage & Send Notifications</h2>
+                    <button class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#sendNotificationModal" id="openSendNotifModalBtn"><i class="bi bi-send-fill"></i> Send Notification</button>
+                </div>
+                <div id="notificationsStatus" class="mb-3"></div>
+                <div class="table-responsive card">
+                    <table class="table table-dark table-hover mb-0">
+                        <thead>
+                            <tr>
+                                <th>Sent At</th>
+                                <th>Title</th>
+                                <th>Message</th>
+                                <th>Target</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="notificationsTableBody">
+                            <tr class="loading-placeholder"><td colspan="5"><div class="placeholder w-100 py-3"></div></td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Payment Methods Section -->
+            <section id="payment-methods-section" class="section">
+                <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+                    <h2>Manage Payment Methods</h2>
+                    <button class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#paymentMethodModal" id="addNewPaymentMethodBtn"><i class="bi bi-plus-circle"></i> Add Method</button>
+                </div>
+                <div id="paymentMethodsStatus" class="mb-3"></div>
+                <div class="table-responsive card">
+                    <table class="table table-dark table-hover mb-0">
+                        <thead>
+                            <tr>
+                                <th>Logo</th>
+                                <th>Method Name</th>
+                                <th>Details</th>
+                                <th>Enabled</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="paymentMethodsTableBody">
+                            <tr class="loading-placeholder"><td colspan="5"><div class="placeholder w-100 py-3"></div></td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="alert alert-info mt-3"><i class="bi bi-info-circle-fill"></i> These payment methods are presented to players in the wallet deposit modal.</div>
+            </section>
+
+            <!-- Payment IDs Section -->
+            <section id="payment-ids-section" class="section">
+                <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+                    <h2>Manage Pre-Paid Payment IDs</h2>
+                    <button class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#paymentIdModal" id="generatePaymentIdBtn"><i class="bi bi-plus-circle"></i> Generate New ID</button>
+                </div>
+                <div id="paymentIdsStatus" class="mb-3"></div>
+                <div class="table-responsive card">
+                    <table class="table table-dark table-hover mb-0">
+                        <thead>
+                            <tr>
+                                <th>Payment ID</th>
+                                <th>Amount</th>
+                                <th>Status</th>
+                                <th>Created At</th>
+                                <th>Used By</th>
+                                <th>Used At</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="paymentIdsTableBody">
+                            <tr class="loading-placeholder"><td colspan="7"><div class="placeholder w-100 py-3"></div></td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="alert alert-info mt-3"><i class="bi bi-info-circle-fill"></i> Single-use redemption tokens that credit instant wallet balances.</div>
+            </section>
+
+            <!-- Settings Section -->
+            <section id="settings-section" class="section card"> 
+                <div class="card-body"> 
+                    <h2 class="card-title">App Settings & Policies</h2>
+                    <!-- Maintenance Mode Card -->
+                    <div class="card bg-danger bg-opacity-10 border-danger mb-4">
+                        <div class="card-body">
+                            <h5 class="card-title text-danger"><i class="bi bi-tools"></i> App Maintenance Mode</h5>
+                            <div class="form-check form-switch mb-2">
+                                <input class="form-check-input" type="checkbox" role="switch" id="settingMaintenanceMode">
+                                <label class="form-check-label fw-bold" for="settingMaintenanceMode">Enable Maintenance Mode</label>
+                            </div>
+                            <small class="text-muted d-block mb-2">When enabled, players are presented with a maintenance screen.</small>
+                            <div>
+                                <label for="settingMaintenanceNotice" class="form-label">Maintenance Notice / Message</label>
+                                <textarea class="form-control" id="settingMaintenanceNotice" rows="2" placeholder="e.g., We are currently performing scheduled maintenance. Please check back soon!"></textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <form id="appSettingsForm">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="settingAppName" class="form-label">Platform Name</label>
+                                <input type="text" class="form-control" id="settingAppName" placeholder="Gaming Tournament">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="settingLogoUrl" class="form-label">Logo Image URL</label>
+                                <input type="url" class="form-control" id="settingLogoUrl" placeholder="Direct URL to logo">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="settingLogoFile" class="form-label">Upload New Logo</label>
+                                <input class="form-control" type="file" id="settingLogoFile" accept="image/*">
+                                <div class="imgbb-upload-status mt-2"></div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="settingMinWithdraw" class="form-label">Minimum Withdrawal Amount (₹)</label>
+                                <input type="number" class="form-control" id="settingMinWithdraw" min="1" step="1">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="settingReferralBonus" class="form-label">Referral Signup Bonus (₹)</label>
+                                <input type="number" class="form-control" id="settingReferralBonus" min="0" step="1">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="settingSupportContact" class="form-label">Customer Support Mobile / WhatsApp</label>
+                                <input type="text" class="form-control" id="settingSupportContact" placeholder="+923001234567">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="settingUpiDetails" class="form-label">JazzCash / EasyPaisa Account Number</label>
+                                <input type="text" class="form-control" id="settingUpiDetails" placeholder="e.g. 03001234567">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="settingJazzCashName" class="form-label">Payment Account Name</label>
+                                <input type="text" class="form-control" id="settingJazzCashName" placeholder="e.g. Gaming Official">
+                            </div>
+                            <div class="col-12 mb-3"> 
+                                <label for="settingPolicyPrivacy" class="form-label">Privacy Policy</label> 
+                                <textarea class="form-control" id="settingPolicyPrivacy" rows="4"></textarea> 
+                            </div> 
+                            <div class="col-12 mb-3"> 
+                                <label for="settingPolicyTerms" class="form-label">Terms & Conditions</label> 
+                                <textarea class="form-control" id="settingPolicyTerms" rows="4"></textarea> 
+                            </div> 
+                            <div class="col-12 mb-3"> 
+                                <label for="settingPolicyRefund" class="form-label">Refund Policy</label> 
+                                <textarea class="form-control" id="settingPolicyRefund" rows="4"></textarea> 
+                            </div> 
+                            <div class="col-12 mb-3"> 
+                                <label for="settingPolicyFairPlay" class="form-label">Fair Play Policy</label> 
+                                <textarea class="form-control" id="settingPolicyFairPlay" rows="4"></textarea> 
+                            </div> 
+                        </div> 
+                        <button type="submit" class="btn btn-primary"><i class="bi bi-save"></i> Save Settings</button> 
+                        <div id="settingsStatus" class="mt-3"></div> 
+                    </form> 
+                </div>
+            </section>
+
+            <!-- Theme Section -->
+            <section id="theme-section" class="section">
+                <div class="card">
+                    <div class="card-body">
+                        <h2 class="card-title">App Theme Selector</h2>
+                        <p class="text-muted">Choose the global default esports theme styling.</p>
+                        <div class="mb-3" style="max-width: 400px;">
+                            <label for="settingThemeSelect" class="form-label">Current Theme</label>
+                            <select class="form-select" id="settingThemeSelect">
+                                <option value="normal">Normal Day (Black & Gold)</option>
+                                <option value="independence">Independence Day (Green & White)</option>
+                                <option value="war">War Day (Army Camo)</option>
+                                <option value="islamic">Islamic Day (Green Theme)</option>
+                                <option value="ramadan">Ramadan (Midnight Blue & Silver)</option>
+                                <option value="blackday">Black Day (Blood Red & Black)</option>
+                                <option value="monster">Monster (Crimson Red & Obsidian Beast)</option>
+                                <option value="cyberpunk">Cyberpunk Neon</option>
+                                <option value="sakura">Sakura Blossom</option>
+                                <option value="sunset">Sunset Boulevard</option>
+                                <option value="arctic">Arctic Frost</option>
+                                <option value="matrix">Matrix Hacker</option>
+                                <option value="synthwave">Synthwave 80s</option>
+                                <option value="royal">Royal Amethyst</option>
+                                <option value="inferno">Inferno Flame</option>
+                            </select>
+                        </div>
+                        <button type="button" class="btn btn-primary" id="saveThemeBtn"><i class="bi bi-save"></i> Save Theme</button>
+                        <div id="themeStatus" class="mt-3"></div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Quick Admin Bottom Navigation (Index Style) -->
+        <nav class="admin-bottom-nav">
+            <a href="#" class="admin-nav-item active" data-section="dashboard-section"><i class="bi bi-speedometer2"></i><span>Dashboard</span></a>
+            <a href="#" class="admin-nav-item" data-section="tournaments-section"><i class="bi bi-trophy"></i><span>Matches</span></a>
+            <a href="#" class="admin-nav-item" data-section="users-section"><i class="bi bi-people"></i><span>Users</span></a>
+            <a href="#" class="admin-nav-item" data-section="withdrawals-section"><i class="bi bi-cash-coin"></i><span>Payouts</span></a>
+            <a href="#" class="admin-nav-item" data-section="support-tickets-section"><i class="bi bi-headset"></i><span>Support</span></a>
+        </nav>
+    </div>
+
+    <!-- Modals -->
+    <!-- Screenshot Viewer Modal -->
+    <div class="modal fade" id="screenshotModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Payment Screenshot</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body text-center">
+                    <img src="" id="screenshotModalImage" alt="Screenshot" style="max-width: 100%; height: auto; border-radius: 8px;">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add/Edit Game Modal -->
+    <div class="modal fade" id="gameModal" tabindex="-1"> <div class="modal-dialog"> <div class="modal-content"> <div class="modal-header"> <h5 class="modal-title" id="gameModalTitle">Add New Game</h5> <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button> </div> <div class="modal-body"> <form id="gameForm"> <input type="hidden" id="gameEditId"> <div class="mb-3"> <label for="gameName" class="form-label">Game Name</label> <input type="text" class="form-control" id="gameName" required> </div> <div class="mb-3"> <label for="gameImageUrl" class="form-label">Image URL</label> <input type="url" class="form-control" id="gameImageUrl"> <small class="text-muted">Direct image URL (e.g., from ImgBB).</small> </div> <div class="mb-3"> <label for="gameImageFile" class="form-label">Upload New Image (Optional - Overwrites URL)</label> <input class="form-control" type="file" id="gameImageFile" accept="image/*"> <div class="imgbb-upload-status mt-2"></div> </div> <div id="gameStatus" class="mt-2"></div></form> </div> <div class="modal-footer"> <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button> <button type="button" class="btn btn-primary" id="saveGameBtn">Save Game</button> </div> </div> </div> </div>
+
+    <!-- Add/Edit Promotion Modal -->
+    <div class="modal fade" id="promotionModal" tabindex="-1"> <div class="modal-dialog"> <div class="modal-content"> <div class="modal-header"> <h5 class="modal-title" id="promotionModalTitle">Add New Promotion</h5> <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button> </div> <div class="modal-body"> <form id="promotionForm"> <input type="hidden" id="promotionEditId"> <div class="mb-3"> <label for="promoImageUrl" class="form-label">Image URL</label> <input type="url" class="form-control" id="promoImageUrl" required> <small class="text-muted">Direct image URL (e.g., from ImgBB).</small> </div> <div class="mb-3"> <label for="promoImageFile" class="form-label">Upload New Image (Optional - Overwrites URL)</label> <input class="form-control" type="file" id="promoImageFile" accept="image/*"> <div class="imgbb-upload-status mt-2"></div> </div> <div class="mb-3"> <label for="promoLink" class="form-label">Link (Optional)</label> <input type="url" class="form-control" id="promoLink"> </div> <div id="promotionStatus" class="mt-2"></div></form> </div> <div class="modal-footer"> <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button> <button type="button" class="btn btn-primary" id="savePromotionBtn">Save Promotion</button> </div> </div> </div> </div>
+
+    <!-- Add/Edit Tournament Modal -->
+    <div class="modal fade" id="addTournamentModal" tabindex="-1"> <div class="modal-dialog modal-lg"> <div class="modal-content"> <div class="modal-header"> <h5 class="modal-title" id="tournamentModalTitle">Add New Tournament</h5> <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button> </div> <div class="modal-body"> <form id="tournamentForm"> <input type="hidden" id="tournamentEditId"> <div class="row"> <div class="col-md-6 mb-3"> <label for="tournamentGame" class="form-label">Game</label> <select class="form-select" id="tournamentGame" required></select> </div> <div class="col-md-6 mb-3"> <label for="tournamentName" class="form-label">Tournament Name</label> <input type="text" class="form-control" id="tournamentName" required> </div> 
+ <div class="col-md-6 mb-3"> <label for="tournamentBannerUrl" class="form-label">Banner Image URL (Optional)</label> <input type="url" class="form-control" id="tournamentBannerUrl" placeholder="Defaults to Game Image"> </div>
+ <div class="col-md-6 mb-3"> <label for="tournamentBannerFile" class="form-label">Upload Banner (Optional)</label> <input class="form-control" type="file" id="tournamentBannerFile" accept="image/*"> <div class="imgbb-upload-status mt-2"></div> </div>
+ <div class="col-md-6 mb-3">
+    <label for="tournamentMode" class="form-label">Mode</label>
+    <select class="form-select" id="tournamentMode" required>
+        <option value="Solo" selected>Solo</option>
+        <option value="Duo">Duo</option>
+        <option value="Squad">Squad</option>
+    </select>
+</div> <div class="col-md-6 mb-3"> <label for="tournamentStartTime" class="form-label">Start Date & Time</label> <input type="datetime-local" class="form-control" id="tournamentStartTime" required> </div> <div class="col-md-6 mb-3"> <label for="tournamentStatus" class="form-label">Status</label> <select class="form-select" id="tournamentStatus" required> <option value="upcoming">Upcoming</option> <option value="ongoing">Ongoing</option> <option value="completed">Completed</option> <option value="result">Result</option> <option value="cancelled">Cancelled</option> </select> </div> <div class="col-md-4 mb-3"> <label for="tournamentEntryFee" class="form-label">Entry Fee (₹)</label> <input type="number" class="form-control" id="tournamentEntryFee" min="0" value="0" required step="any"> </div> <div class="col-md-4 mb-3"> <label for="tournamentPrizePool" class="form-label">Total Prize Pool (₹)</label> <input type="number" class="form-control" id="tournamentPrizePool" min="0" value="0" step="any"> </div> <div class="col-md-4 mb-3"> <label for="tournamentPerKill" class="form-label">Per Kill Prize (₹)</label> <input type="number" class="form-control" id="tournamentPerKill" min="0" value="0" step="any"> </div> <div class="col-md-6 mb-3"> <label for="tournamentMaxPlayers" class="form-label">Max Players (0 for Unlimited)</label> <input type="number" class="form-control" id="tournamentMaxPlayers" min="0" value="0" required> </div> <div class="col-md-6 mb-3"> <label for="tournamentTags" class="form-label">Tags (comma-separated)</label> <input type="text" class="form-control" id="tournamentTags" placeholder="e.g., Solo, Erangel, TPP"> </div> <div class="col-12 mb-3"> <label for="tournamentDescription" class="form-label">Description / Rules</label> <textarea class="form-control" id="tournamentDescription" rows="4"></textarea> </div> <div class="col-md-6 mb-3"> <label for="tournamentRoomId" class="form-label">Room ID</label> <input type="text" class="form-control" id="tournamentRoomId"> </div> <div class="col-md-6 mb-3"> <label for="tournamentRoomPassword" class="form-label">Room Password</label> <input type="text" class="form-control" id="tournamentRoomPassword"> </div> <div class="form-check mb-3 ms-2"> <input class="form-check-input" type="checkbox" id="tournamentShowIdPass"> <label class="form-check-label" for="tournamentShowIdPass"> Show ID/Pass to Joined Players?</label> </div> </div> <div id="addTournamentStatus" class="mt-2"></div></form> </div> <div class="modal-footer"> <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button> <button type="button" class="btn btn-primary" id="saveTournamentBtn">Save Tournament</button> </div> </div> </div> </div>
+
+    <!-- View/Edit User Modal -->
+    <div class="modal fade" id="userModal" tabindex="-1"> <div class="modal-dialog modal-lg"> <div class="modal-content"> <div class="modal-header"> <h5 class="modal-title" id="userModalTitle">User Details</h5> <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button> </div> <div class="modal-body"> <div class="row"> <div class="col-md-6"> <h5>User Info</h5> <p><strong>UID:</strong> <small id="userDetailUid" class="text-muted user-uid-copy"></small> <i class="bi bi-clipboard copy-btn ms-1" data-target="#userDetailUid" title="Copy UID"></i></p> <p><strong>Mobile:</strong> <span id="userDetailEmail"></span></p> 
+<p><strong>Name:</strong> <span id="userDetailName"></span></p> 
+<p><strong>In-Game Name:</strong> <span id="userDetailGameName"></span></p> 
+<p><strong>In-Game UID:</strong> <span id="userDetailGameUid"></span></p> <p><strong>Created At:</strong> <span id="userDetailCreatedAt">N/A</span></p> <hr> <h5>Wallet</h5> <p>Total Balance: ₹<span id="userDetailBalance">0.00</span></p> <p>Winning Cash: ₹<span id="userDetailWinning">0.00</span></p> <p>Bonus Cash: ₹<span id="userDetailBonus">0.00</span></p> <hr> <h5>Referral Info</h5> <p><strong>Referral Code:</strong> <span id="userDetailReferralCode" class="text-info">N/A</span> <i class="bi bi-clipboard copy-btn ms-1" data-target="#userDetailReferralCode" title="Copy Code"></i></p> <p><strong>Referred By:</strong> <span id="userDetailReferredBy">N/A</span></p> <p><strong>Users Referred:</strong> <span id="userDetailReferredCount">N/A</span></p> </div> <div class="col-md-6"> <h5>Update Balance (Caution!)</h5> <form id="updateBalanceForm"> <input type="hidden" id="editUserUid"> <div class="row"> <div class="col-md-6 mb-3"> <label for="balanceUpdateAmount" class="form-label">Amount (+/-)</label> <input type="number" step="any" class="form-control" id="balanceUpdateAmount" placeholder="e.g., 50 or -20" required> </div> <div class="col-md-6 mb-3"> <label for="balanceUpdateType" class="form-label">Balance Type</label> <select id="balanceUpdateType" class="form-select" required> <option value="">--Select--</option> <option value="balance">Total Balance</option> <option value="winningCash">Winning Cash</option> <option value="bonusCash">Bonus Cash</option> </select> </div> </div> <div class="mb-3"> <label for="balanceUpdateReason" class="form-label">Reason</label> <input type="text" class="form-control" id="balanceUpdateReason" placeholder="Manual Deposit, Correction etc." required> </div> <button type="submit" class="btn btn-warning">Update Balance</button> <div id="balanceUpdateStatus" class="mt-2"></div> </form> <hr> <h5>Status & Actions</h5> <p>Current Status: <span id="userDetailStatus" class="fw-bold"></span></p> <button class="btn btn-sm mb-2" id="userBlockBtn"></button> <button class="btn btn-sm btn-danger mb-2" id="userDeleteBtn"><i class="bi bi-trash"></i> Delete User (DB Only)</button> </div> </div> </div> <div class="modal-footer"> <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button> </div> </div> </div> </div>
+
+    <!-- Withdrawal Action Modal -->
+    <div class="modal fade" id="withdrawalActionModal" tabindex="-1"> <div class="modal-dialog"> <div class="modal-content"> <div class="modal-header"> <h5 class="modal-title">Withdrawal Action</h5> <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button> </div> <div class="modal-body"> <p><strong>Request ID:</strong> <small id="withdrawalDetailId" class="text-muted withdrawal-id-copy"></small> <i class="bi bi-clipboard copy-btn ms-1" data-target="#withdrawalDetailId" title="Copy Request ID"></i></p> <p><strong>User:</strong> <span id="withdrawalDetailUser"></span> (<small id="withdrawalDetailUserUid" class="text-muted withdrawal-user-uid-copy"></small> <i class="bi bi-clipboard copy-btn ms-1" data-target="#withdrawalDetailUserUid" title="Copy User UID"></i>)</p> <p><strong>Amount:</strong> ₹<span id="withdrawalDetailAmount"></span></p> <p><strong>Method:</strong> <span id="withdrawalDetailMethod"></span></p> <hr> <div id="withdrawalRejectReasonDiv" style="display: none;" class="mb-3"> <label for="withdrawalRejectReason" class="form-label">Reason for Rejection</label> <textarea class="form-control" id="withdrawalRejectReason" rows="3" required></textarea> </div> <div id="withdrawalApproveNoteDiv" style="display: none;" class="mb-3"> <label for="withdrawalApproveNote" class="form-label">Admin Note / Txn ID (Optional)</label> <input type="text" class="form-control" id="withdrawalApproveNote" placeholder="e.g., Transaction ID"> </div> <div id="withdrawalActionStatus" class="mt-2"></div> </div> <div class="modal-footer"> <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button> <button type="button" class="btn btn-danger" id="rejectWithdrawalBtn">Reject</button> <button type="button" class="btn btn-success" id="approveWithdrawalBtn">Approve</button> </div> </div> </div> </div>
+
+    <!-- Add New User Modal -->
+    <div class="modal fade" id="addUserModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Add New User</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+ <form id="addUserForm">
+    <div class="mb-3">
+        <label for="newUserName" class="form-label">Display Name</label>
+        <input type="text" class="form-control" id="newUserName" required>
+    </div>
+    <div class="mb-3">
+        <label for="newUserEmail" class="form-label">Mobile Number</label>
+        <input type="tel" class="form-control" id="newUserEmail" required>
+    </div>
+    <div class="mb-3">
+        <label for="newUserGameName" class="form-label">In-Game Name</label>
+        <input type="text" class="form-control" id="newUserGameName" required>
+    </div>
+    <div class="mb-3">
+        <label for="newUserGameUid" class="form-label">In-Game UID</label>
+        <input type="text" class="form-control" id="newUserGameUid" required>
+    </div>
+    <div class="mb-3">
+        <label for="newUserPassword" class="form-label">Password (min 6 chars)</label>
+        <input type="password" class="form-control" id="newUserPassword" required minlength="6">
+    </div>
+    <div class="mb-3">
+        <label for="newUserInitialBalance" class="form-label">Initial Balance (₹)</label>
+        <input type="number" step="any" class="form-control" id="newUserInitialBalance" value="0" min="0">
+        <small class="text-muted">This will be added to Total Balance.</small>
+    </div>
+    <div id="addUserStatus" class="mt-2"></div>
+</form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" id="saveNewUserBtn">Create User</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Registered Players Modal -->
+    <div class="modal fade" id="registeredPlayersModal" tabindex="-1">
+        <div class="modal-dialog modal-lg modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="registeredPlayersModalTitle">Registered Players</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Tournament: <strong id="registeredPlayersTournamentName"></strong></p>
+                    <div id="registeredPlayersStatus" class="mb-2"></div>
+                    <div class="table-responsive">
+                        <table class="table table-dark table-sm table-hover">
+                           <thead>
+    <tr><th>User UID</th><th>Name</th><th>Mobile</th><th>In-Game Name</th><th>Joined At</th></tr>
+</thead>
+                            <tbody id="registeredPlayersTableBody">
+                                <tr><td colspan="5" class="text-center p-3"><div class="spinner-border spinner-border-sm" role="status"><span class="visually-hidden">Loading...</span></div></td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="modal-footer d-flex justify-content-between">
+                    <button type="button" class="btn btn-success btn-sm" id="exportPlayersCsvBtn"><i class="bi bi-file-earmark-spreadsheet"></i> Export CSV / Excel</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Results Entry Modal with Automatic Payout -->
+    <div class="modal fade" id="resultsEntryModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-xl modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="bi bi-trophy text-warning me-2"></i> Enter Match Results & Distribute Prizes</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h6 class="mb-0">Tournament: <strong id="resultsTournamentName" class="text-warning"></strong></h6>
+                        <button type="button" class="btn btn-sm btn-warning" id="addResultRowBtn"><i class="bi bi-plus-circle me-1"></i> Add Player / Team</button>
+                    </div>
+                    <div class="alert alert-warning py-2 small mb-3">
+                        <i class="bi bi-lightning-charge-fill me-1"></i> <strong>Automatic Wallet Distribution:</strong> Saving results will automatically credit winnings directly into linked players' wallets, increment won matches, and record transactions.
+                    </div>
+
+                    <!-- Real-time Prize Pool Auditor Card -->
+                    <div class="p-3 mb-3 rounded border" id="resultsPrizePoolAuditCard" style="background: rgba(255, 215, 0, 0.05); border-color: rgba(255, 215, 0, 0.25) !important;">
+                        <div class="row g-2 align-items-center text-center text-md-start">
+                            <div class="col-6 col-md-3">
+                                <span class="text-secondary small d-block">Tournament Prize Pool</span>
+                                <strong class="fs-6 text-white" id="resultsModalPrizePool">₹0</strong>
+                            </div>
+                            <div class="col-6 col-md-3">
+                                <span class="text-secondary small d-block">Total Distributed</span>
+                                <strong class="fs-6 text-warning" id="resultsModalDistributedTotal">₹0</strong>
+                            </div>
+                            <div class="col-6 col-md-3">
+                                <span class="text-secondary small d-block">Remaining Balance</span>
+                                <strong class="fs-6 text-success" id="resultsModalRemainingBalance">₹0</strong>
+                            </div>
+                            <div class="col-6 col-md-3 text-md-end">
+                                <span class="badge bg-success py-1 px-2" id="resultsModalAuditBadge">Ready</span>
+                            </div>
+                        </div>
+                        <div id="resultsPrizePoolAlert" class="mt-2 small d-none"></div>
+                    </div>
+
+                    <!-- Edit Mode Indicator Banner -->
+                    <div id="resultsEditModeBanner" class="alert alert-info py-2 small mb-3 d-none">
+                        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                            <div>
+                                <i class="bi bi-pencil-square me-1"></i>
+                                <strong>Editing Existing Results:</strong> Match standings were already published. Saving updates will adjust player wallets and record a transparent revision log.
+                            </div>
+                            <span class="badge bg-primary" id="resultsRevisionBadge">Revision #1</span>
+                        </div>
+                    </div>
+
+                    <div id="resultsEntryStatus" class="mb-2"></div>
+                    <form id="resultsEntryForm">
+                        <div class="table-responsive">
+                            <table class="table table-dark table-sm table-bordered align-middle">
+                               <thead>
+                                    <tr class="text-center text-warning">
+                                        <th style="width: 70px;"># Pos</th>
+                                        <th>Player / Team Name</th>
+                                        <th>In-Game Name / UID</th>
+                                        <th style="width: 90px;">Kills</th>
+                                        <th style="width: 110px;">Prize (₹)</th>
+                                        <th style="width: 50px;">Remove</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="resultsEntryTableBody">
+                                    <!-- Populated dynamically -->
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Reason for Edit Field -->
+                        <div id="resultsEditReasonSection" class="mt-3 p-2.5 rounded border border-warning-subtle bg-dark d-none">
+                            <label for="resultsEditReason" class="form-label small text-warning fw-bold mb-1">
+                                <i class="bi bi-chat-left-dots me-1"></i> Reason for Edit / Revision Note (Logged to Audit History):
+                            </label>
+                            <input type="text" class="form-control form-control-sm bg-dark text-white border-secondary" id="resultsEditReason" placeholder="e.g. Corrected 2nd place kill count, fixed player UID, adjusted prize allocation">
+                            <span class="text-secondary" style="font-size: 10px;">This note and the before/after snapshot will be permanently saved to the tournament revision log.</span>
+                        </div>
+                    </form>
+
+                    <!-- Revision History & Audit Trail Section -->
+                    <div id="resultsHistorySection" class="mt-4 pt-3 border-top border-secondary">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <h6 class="text-warning mb-0"><i class="bi bi-journal-text me-1"></i> Revision History & Audit Trail</h6>
+                            <span class="badge bg-secondary" id="resultsHistoryCountBadge">0 Edits</span>
+                        </div>
+                        <div id="resultsHistoryList" class="small">
+                            <!-- Populated dynamically -->
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-success" id="saveResultsBtn"><i class="bi bi-wallet2 me-1"></i> Save & Distribute Winnings</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add/Edit Payment Method Modal -->
+    <div class="modal fade" id="paymentMethodModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="paymentMethodModalTitle">Add Payment Method</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="paymentMethodForm">
+                        <input type="hidden" id="paymentMethodEditId">
+                        <div class="mb-3">
+                            <label for="methodName" class="form-label">Method Name</label>
+                            <input type="text" class="form-control" id="methodName" placeholder="e.g., EasyPaisa, JazzCash" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="methodLogoUrl" class="form-label">Logo Image URL</label>
+                            <input type="url" class="form-control" id="methodLogoUrl" placeholder="Paste the URL for the logo here" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="methodAccountDetails" class="form-label">Account Details (Text)</label>
+                            <textarea class="form-control" id="methodAccountDetails" rows="3" placeholder="e.g., Account Name: John Doe&#10;Account Number: 03001234567"></textarea>
+                        </div>
+                        <div class="form-check form-switch mb-3">
+                            <input class="form-check-input" type="checkbox" role="switch" id="methodEnabled" checked>
+                            <label class="form-check-label" for="methodEnabled">Enabled</label>
+                        </div>
+                        <div id="paymentMethodStatus" class="mt-2"></div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" id="savePaymentMethodBtn">Save Method</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Create Payment ID Modal -->
+    <div class="modal fade" id="paymentIdModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Create Pre-Paid Payment ID</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="paymentIdForm">
+                        <div class="mb-3">
+                            <label for="paymentIdInput" class="form-label">Payment ID</label>
+                            <input type="text" class="form-control" id="paymentIdInput" placeholder="Enter a unique code" required>
+                            <small class="text-muted">Users will enter this exact code. Make it unique.</small>
+                        </div>
+                        <div class="mb-3">
+                            <label for="paymentIdAmount" class="form-label">Amount (PKR / INR)</label>
+                            <input type="number" class="form-control" id="paymentIdAmount" min="1" step="1" required>
+                        </div>
+                        <div id="paymentIdStatus" class="mt-2"></div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="savePaymentIdBtn">Save ID</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Send Notification Modal -->
+    <div class="modal fade" id="sendNotificationModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Send Broadcast Notification</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="sendNotificationForm">
+                        <div class="mb-3">
+                            <label for="notifTitle" class="form-label">Notification Title</label>
+                            <input type="text" class="form-control" id="notifTitle" placeholder="e.g. Tournament Starting Soon!" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="notifTargetSelect" class="form-label">Target Audience</label>
+                            <select class="form-select" id="notifTargetSelect">
+                                <option value="all">All Users (Broadcast)</option>
+                                <option value="specific">Specific User (by UID)</option>
+                            </select>
+                        </div>
+                        <div class="mb-3" id="notifUserUidContainer" style="display: none;">
+                            <label for="notifUserUid" class="form-label">User UID</label>
+                            <input type="text" class="form-control" id="notifUserUid" placeholder="Enter target User UID">
+                        </div>
+                        <div class="mb-3">
+                            <label for="notifMessage" class="form-label">Notification Message</label>
+                            <textarea class="form-control" id="notifMessage" rows="3" placeholder="Enter notification text here..." required></textarea>
+                        </div>
+                        <div id="sendNotifStatus" class="mt-2"></div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="submitSendNotifBtn">Send Notification</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Admin Panel Script with Firebase Integration -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
+        import { getDatabase, ref, get, set, update, push, query, orderByChild, equalTo, onValue, off, remove, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js";
+        import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyCFwn_NBdDOLpEhAbwAjJpSn-pE1_E2-64",
+            authDomain: "ssbattleapp.firebaseapp.com",
+            projectId: "ssbattleapp",
+            storageBucket: "ssbattleapp.firebasestorage.app",
+            messagingSenderId: "956310671836",
+            appId: "1:956310671836:web:741ce171b03b531e29ff19",
+            measurementId: "G-ZRXRSSD996",
+            databaseURL: "https://ssbattleapp-default-rtdb.firebaseio.com"
+        };
+
+        let app, db, auth;
+        try {
+            app = initializeApp(firebaseConfig);
+            db = getDatabase(app);
+            auth = getAuth(app);
+            console.log("Admin Panel: Firebase Initialized successfully.");
+        } catch (error) {
+            console.error("Admin Panel Firebase initialization failed:", error);
+        }
+
+        const getElement = (id) => document.getElementById(id);
+        const querySel = (selector) => document.querySelector(selector);
+        const querySelAll = (selector) => document.querySelectorAll(selector);
+
+        let currentAdminUser = null;
+        let gameDataCache = {};
+        let fullUserDataCache = {};
+        let userDataCache = {};
+        let dbListeners = {};
+        let appSettings = {};
+        let currentEditingTournamentId = null;
+        let currentWithdrawalAction = { id: null, type: null, userId: null };
+
+        const showLoader = (show) => {
+            const el = getElement('adminLoader');
+            if (el) el.style.display = show ? 'flex' : 'none';
+        };
+
+        function showStatus(element, message, type = 'danger', autohide = 5000) {
+            if (!element) return;
+            element.style.display = 'block';
+            element.innerHTML = `<div class="alert alert-${type} alert-dismissible fade show" role="alert">${message}<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>`;
+            if (autohide && autohide > 0) {
+                setTimeout(() => { element.innerHTML = ''; }, autohide);
+            }
+        }
+
+        function clearStatus(element) {
+            if (element) element.innerHTML = '';
+        }
+
+        const formatDate = (timestamp) => {
+            if (!timestamp) return 'N/A';
+            const num = Number(timestamp);
+            if (isNaN(num) || num <= 0) return 'Invalid Date';
+            try {
+                return new Date(num).toLocaleString([], { dateStyle: 'short', timeStyle: 'short' });
+            } catch {
+                return 'Invalid Date';
+            }
+        };
+
+        const formatCurrency = (amount) => {
+            const num = Number(amount);
+            return isNaN(num) ? '₹0.00' : `₹${num.toFixed(2)}`;
+        };
+
+        function sanitizeHTML(str) {
+            if (str == null) return '';
+            const temp = document.createElement('div');
+            temp.textContent = String(str);
+            return temp.innerHTML;
+        }
+
+        function showAdminSection(sectionId) {
+            querySelAll('#adminMainContent .section').forEach(sec => sec.classList.remove('active'));
+            const targetSection = getElement(sectionId);
+            if (targetSection) {
+                targetSection.classList.add('active');
+                querySelAll('#adminSidebar .nav-link').forEach(link => {
+                    link.classList.toggle('active', link.dataset.section === sectionId);
+                });
+                querySelAll('.admin-bottom-nav .admin-nav-item').forEach(navItem => {
+                    navItem.classList.toggle('active', navItem.dataset.section === sectionId);
+                });
+
+                const link = querySel(`#adminSidebar .nav-link[data-section="${sectionId}"]`);
+                if (link && getElement('adminPageTitle')) {
+                    getElement('adminPageTitle').textContent = link.textContent.trim();
+                }
+
+                loadDataForSection(sectionId);
+                const sidebar = bootstrap.Offcanvas.getInstance(getElement('adminSidebar'));
+                if (sidebar) sidebar.hide();
+                window.scrollTo(0, 0);
+            }
+        }
+
+        function loadDataForSection(sectionId) {
+            switch(sectionId) {
+                case 'dashboard-section': loadDashboardStats(); break;
+                case 'games-section': loadGames(); break;
+                case 'promotions-section': loadPromotions(); break;
+                case 'tournaments-section': loadTournaments(); break;
+                case 'users-section': loadUsers(); break;
+                case 'withdrawals-section': loadWithdrawals('pending'); break;
+                case 'deposits-section': loadDepositRequests('pending'); break;
+                case 'settings-section': loadSettings(); break;
+                case 'theme-section': loadThemeSettings(); break;
+                case 'notifications-section': loadNotifications(); break;
+                case 'support-tickets-section': loadSupportThreads(); break;
+                case 'payment-methods-section': loadPaymentMethods(); break;
+                case 'payment-ids-section': loadPaymentIds(); break;
+            }
+        }
+
+        // --- DASHBOARD STATS ---
+        async function loadDashboardStats() {
+            if (!db) return;
+            try {
+                const [usersSnap, gamesSnap, promosSnap, tournamentsSnap, withdrawalsSnap] = await Promise.all([
+                    get(ref(db, 'users')),
+                    get(ref(db, 'games')),
+                    get(ref(db, 'promotions')),
+                    get(ref(db, 'tournaments')),
+                    get(ref(db, 'withdrawals')),
+                ]);
+
+                if (getElement('statTotalUsers')) getElement('statTotalUsers').textContent = usersSnap.exists() ? usersSnap.size : 0;
+                if (getElement('statTotalGames')) getElement('statTotalGames').textContent = gamesSnap.exists() ? gamesSnap.size : 0;
+                if (getElement('statTotalPromotions')) getElement('statTotalPromotions').textContent = promosSnap.exists() ? promosSnap.size : 0;
+
+                let activeCount = 0;
+                let finishedCount = 0;
+                if (tournamentsSnap.exists()) {
+                    tournamentsSnap.forEach(c => {
+                        const s = c.val()?.status;
+                        if (s === 'upcoming' || s === 'ongoing') activeCount++;
+                        else if (s === 'result' || s === 'completed') finishedCount++;
+                    });
+                }
+                if (getElement('statActiveTournaments')) getElement('statActiveTournaments').textContent = activeCount;
+                if (getElement('statFinishedTournaments')) getElement('statFinishedTournaments').textContent = finishedCount;
+
+                let pendingW = 0, completedW = 0, rejectedW = 0;
+                if (withdrawalsSnap.exists()) {
+                    withdrawalsSnap.forEach(c => {
+                        const st = c.val()?.status;
+                        if (st === 'pending') pendingW++;
+                        else if (st === 'completed') completedW++;
+                        else if (st === 'rejected') rejectedW++;
+                    });
+                }
+                if (getElement('statPendingWithdrawals')) getElement('statPendingWithdrawals').textContent = pendingW;
+                if (getElement('statCompletedWithdrawals')) getElement('statCompletedWithdrawals').textContent = completedW;
+                if (getElement('statRejectedWithdrawals')) getElement('statRejectedWithdrawals').textContent = rejectedW;
+
+                const badge = getElement('pendingWithdrawalCountBadge');
+                if (badge) {
+                    badge.textContent = pendingW;
+                    badge.style.display = pendingW > 0 ? 'inline-block' : 'none';
+                }
+            } catch (e) {
+                console.error("Dashboard stats error:", e);
+            }
+        }
+
+        // --- TOURNAMENTS (SHOWS ALL OLD & NEW MATCHES!) ---
+        async function loadTournaments() {
+            if (!db) return;
+            const tableBody = getElement('tournamentsTableBody');
+            if (!tableBody) return;
+            tableBody.innerHTML = '<tr><td colspan="8" class="text-center p-3"><div class="spinner-border spinner-border-sm text-warning"></div> Loading tournaments...</td></tr>';
+
+            try {
+                await loadGames(); // ensure games cached
+                const snapshot = await get(ref(db, 'tournaments'));
+                let tableHtml = '';
+
+                if (snapshot.exists()) {
+                    const list = [];
+                    snapshot.forEach(c => list.push({ id: c.key, ...c.val() }));
+                    // Sort by startTime descending (newest / most recent first)
+                    list.sort((a, b) => (b.startTime || 0) - (a.startTime || 0));
+
+                    list.forEach(t => {
+                        const gameName = gameDataCache[t.gameId] || 'Battle Royale';
+                        let statusClass = 'secondary';
+                        if (t.status === 'upcoming') statusClass = 'info';
+                        else if (t.status === 'ongoing') statusClass = 'success';
+                        else if (t.status === 'result') statusClass = 'warning text-dark';
+                        else if (t.status === 'completed') statusClass = 'secondary';
+                        else if (t.status === 'cancelled') statusClass = 'danger';
+
+                        const regCount = t.registeredPlayers ? Object.keys(t.registeredPlayers).length : 0;
+                        const maxPlayers = t.maxPlayers > 0 ? `/${t.maxPlayers}` : '';
+
+                        tableHtml += `
+                            <tr>
+                                <td><strong>${sanitizeHTML(t.name)}</strong></td>
+                                <td>${sanitizeHTML(gameName)}</td>
+                                <td>${formatCurrency(t.entryFee)}</td>
+                                <td><span class="text-warning fw-bold">${formatCurrency(t.prizePool)}</span></td>
+                                <td>${formatDate(t.startTime)}</td>
+                                <td><span class="badge bg-${statusClass}">${t.status || 'upcoming'}</span></td>
+                                <td>${regCount}${maxPlayers}</td>
+                                <td class="action-buttons">
+                                    <button class="btn btn-sm btn-info btn-edit-tournament" data-id="${t.id}" title="Edit Tournament"><i class="bi bi-pencil-square"></i></button>
+                                    <button class="btn btn-sm btn-warning btn-enter-results" data-id="${t.id}" data-name="${sanitizeHTML(t.name)}" title="Enter Results & Payout"><i class="bi bi-trophy"></i> Results</button>
+                                    <button class="btn btn-sm btn-secondary btn-view-registered" data-id="${t.id}" data-name="${sanitizeHTML(t.name)}" title="Registered Players"><i class="bi bi-people"></i></button>
+                                    <button class="btn btn-sm btn-danger btn-delete-tournament" data-id="${t.id}" title="Delete"><i class="bi bi-trash"></i></button>
+                                </td>
+                            </tr>`;
+                    });
+                }
+
+                tableBody.innerHTML = tableHtml || '<tr><td colspan="8" class="text-center p-3 text-muted">No tournaments found in database. Click "Add Tournament" above to create one.</td></tr>';
+            } catch (e) {
+                console.error("Error loading tournaments:", e);
+                tableBody.innerHTML = `<tr><td colspan="8" class="text-center p-3 text-danger">Error: ${e.message}</td></tr>`;
+            }
+        }
+
+        // --- RESULTS ENTRY & AUTOMATIC WALLET PAYOUT ---
+        function createResultRowHtml(uid = '', pos = '', name = '', gameName = '', kills = 0, winnings = 0) {
+            const safeUid = uid || ('custom_' + Math.random().toString(36).substring(2, 9));
+            return `
+                <tr data-uid="${safeUid}">
+                    <td><input type="number" class="form-control form-control-sm text-center result-position" value="${pos}" placeholder="#" min="1"></td>
+                    <td><input type="text" class="form-control form-control-sm result-player-name" value="${sanitizeHTML(name)}" placeholder="Team / Player Name" required></td>
+                    <td><input type="text" class="form-control form-control-sm result-game-name" value="${sanitizeHTML(gameName)}" placeholder="In-Game Name"></td>
+                    <td><input type="number" class="form-control form-control-sm text-center result-kills" value="${kills}" min="0"></td>
+                    <td><input type="number" class="form-control form-control-sm text-center result-winnings text-warning fw-bold" value="${winnings}" min="0" step="any"></td>
+                    <td class="text-center"><button type="button" class="btn btn-sm btn-outline-danger p-1" onclick="this.closest('tr').remove()"><i class="bi bi-x-lg"></i></button></td>
+                </tr>`;
+        }
+
+        function updateResultsPrizePoolAudit() {
+            const saveBtn = getElement('saveResultsBtn');
+            if (!saveBtn) return;
+            const prizePool = parseFloat(saveBtn.dataset.tournamentPrizePool) || 0;
+            const winningInputs = document.querySelectorAll('#resultsEntryTableBody .result-winnings');
+            let totalDistributed = 0;
+            winningInputs.forEach(inp => {
+                const val = parseFloat(inp.value) || 0;
+                totalDistributed += val;
+            });
+
+            const remaining = prizePool - totalDistributed;
+            const distributedEl = getElement('resultsModalDistributedTotal');
+            const remainingEl = getElement('resultsModalRemainingBalance');
+            const badgeEl = getElement('resultsModalAuditBadge');
+            const alertEl = getElement('resultsPrizePoolAlert');
+            const cardEl = getElement('resultsPrizePoolAuditCard');
+
+            if (distributedEl) distributedEl.textContent = '₹' + totalDistributed.toLocaleString();
+            if (remainingEl) remainingEl.textContent = '₹' + remaining.toLocaleString();
+
+            if (alertEl) {
+                alertEl.className = 'mt-2 small';
+                if (prizePool > 0 && totalDistributed > prizePool) {
+                    alertEl.classList.remove('d-none');
+                    alertEl.innerHTML = `<div class="alert alert-danger py-1.5 px-3 mb-0">
+                        <i class="bi bi-x-circle-fill me-1"></i> <strong>Exceeds Prize Pool:</strong> Total distributed prize (₹${totalDistributed.toLocaleString()}) exceeds defined tournament prize pool (₹${prizePool.toLocaleString()}) by <strong>₹${(totalDistributed - prizePool).toLocaleString()}</strong>. Saving is blocked!
+                    </div>`;
+                    if (badgeEl) {
+                        badgeEl.className = 'badge bg-danger py-1 px-2';
+                        badgeEl.textContent = 'Blocked (+₹' + (totalDistributed - prizePool).toLocaleString() + ')';
+                    }
+                    if (cardEl) {
+                        cardEl.style.borderColor = '#ef4444';
+                        cardEl.style.backgroundColor = 'rgba(239, 68, 68, 0.1)';
+                    }
+                } else if (prizePool > 0 && totalDistributed < prizePool) {
+                    alertEl.classList.remove('d-none');
+                    alertEl.innerHTML = `<div class="alert alert-warning py-1.5 px-3 mb-0">
+                        <i class="bi bi-exclamation-triangle-fill me-1"></i> <strong>Under Prize Pool:</strong> Distributed total (₹${totalDistributed.toLocaleString()}) is lower than defined tournament pool (₹${prizePool.toLocaleString()}). Undistributed: <strong>₹${remaining.toLocaleString()}</strong>.
+                    </div>`;
+                    if (badgeEl) {
+                        badgeEl.className = 'badge bg-warning text-dark py-1 px-2';
+                        badgeEl.textContent = 'Under Pool (-₹' + remaining.toLocaleString() + ')';
+                    }
+                    if (cardEl) {
+                        cardEl.style.borderColor = '#f59e0b';
+                        cardEl.style.backgroundColor = 'rgba(245, 158, 11, 0.08)';
+                    }
+                } else {
+                    alertEl.classList.add('d-none');
+                    if (badgeEl) {
+                        badgeEl.className = 'badge bg-success py-1 px-2';
+                        badgeEl.textContent = prizePool > 0 ? 'Exact Match (100%)' : 'Ready';
+                    }
+                    if (cardEl) {
+                        cardEl.style.borderColor = '#22c55e';
+                        cardEl.style.backgroundColor = 'rgba(34, 197, 94, 0.08)';
+                    }
+                }
+            }
+        }
+
+        async function openResultsEntryModal(tournamentId, tournamentName) {
+            if (!db || !tournamentId) return;
+            const modalEl = getElement('resultsEntryModal');
+            const nameEl = getElement('resultsTournamentName');
+            const tableBody = getElement('resultsEntryTableBody');
+            const saveBtn = getElement('saveResultsBtn');
+            clearStatus(getElement('resultsEntryStatus'));
+
+            if (nameEl) nameEl.textContent = tournamentName || 'Tournament';
+            if (saveBtn) {
+                saveBtn.dataset.tournamentId = tournamentId;
+                saveBtn.dataset.tournamentName = tournamentName || '';
+                saveBtn.dataset.tournamentPrizePool = '0';
+                saveBtn.dataset.hasExistingResults = 'false';
+                saveBtn.dataset.originalResults = '[]';
+                saveBtn.disabled = false;
+            }
+            if (tableBody) tableBody.innerHTML = '<tr><td colspan="6" class="text-center p-3"><div class="spinner-border spinner-border-sm text-warning"></div></td></tr>';
+
+            const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+            modal.show();
+
+            try {
+                const tSnap = await get(ref(db, `tournaments/${tournamentId}`));
+                if (!tSnap.exists()) throw new Error("Tournament not found");
+                const tData = tSnap.val();
+
+                const prizePool = parseFloat(tData.prizePool) || 0;
+                if (saveBtn) {
+                    saveBtn.dataset.tournamentPrizePool = prizePool.toString();
+                }
+                const prizePoolDisplay = getElement('resultsModalPrizePool');
+                if (prizePoolDisplay) {
+                    prizePoolDisplay.textContent = '₹' + prizePool.toLocaleString();
+                }
+
+                const existingResults = tData.results || [];
+                const editHistoryRaw = tData.resultsEditHistory || {};
+                const editHistory = Array.isArray(editHistoryRaw) ? editHistoryRaw : Object.values(editHistoryRaw);
+                const isEditing = Array.isArray(existingResults) && existingResults.length > 0;
+
+                if (saveBtn) {
+                    saveBtn.dataset.hasExistingResults = isEditing ? 'true' : 'false';
+                    saveBtn.dataset.originalResults = JSON.stringify(existingResults);
+                }
+
+                // Edit Mode UI Toggle
+                const bannerEl = getElement('resultsEditModeBanner');
+                const badgeEl = getElement('resultsRevisionBadge');
+                const reasonSec = getElement('resultsEditReasonSection');
+                const reasonInput = getElement('resultsEditReason');
+
+                if (isEditing) {
+                    if (bannerEl) bannerEl.classList.remove('d-none');
+                    if (badgeEl) badgeEl.textContent = `Revision #${editHistory.length + 1}`;
+                    if (reasonSec) reasonSec.classList.remove('d-none');
+                    if (reasonInput) reasonInput.value = '';
+                    if (saveBtn) saveBtn.innerHTML = '<i class="bi bi-pencil-square me-1"></i> Update Results & Record Revision';
+                } else {
+                    if (bannerEl) bannerEl.classList.add('d-none');
+                    if (reasonSec) reasonSec.classList.add('d-none');
+                    if (saveBtn) saveBtn.innerHTML = '<i class="bi bi-wallet2 me-1"></i> Save & Distribute Winnings';
+                }
+
+                // Render Revision History Log
+                const historyCountBadge = getElement('resultsHistoryCountBadge');
+                const historyList = getElement('resultsHistoryList');
+                if (historyCountBadge) historyCountBadge.textContent = `${editHistory.length} Revisions`;
+
+                if (historyList) {
+                    if (editHistory.length === 0) {
+                        historyList.innerHTML = '<div class="text-secondary p-2.5 text-center border border-secondary border-opacity-25 rounded bg-black">No previous revisions recorded. First published results become version #1.</div>';
+                    } else {
+                        const sortedRevisions = [...editHistory].sort((a, b) => (b.editedAt || 0) - (a.editedAt || 0));
+                        historyList.innerHTML = sortedRevisions.map((rev, revIdx) => {
+                            const revNum = editHistory.length - revIdx;
+                            const prevTotal = Number(rev.previousPrizeTotal || 0);
+                            const newTotal = Number(rev.newPrizeTotal || 0);
+                            const diff = newTotal - prevTotal;
+                            return `
+                            <div class="card bg-dark border-secondary mb-2 shadow-sm">
+                                <div class="card-body p-2.5">
+                                    <div class="d-flex justify-content-between align-items-center mb-1 flex-wrap gap-1">
+                                        <strong class="text-warning"><i class="bi bi-clock-history me-1"></i> Revision #${revNum}</strong>
+                                        <span class="text-secondary" style="font-size: 11px;">${formatDate(rev.editedAt)} by <span class="text-info font-monospace">${sanitizeHTML(rev.editedBy || 'admin')}</span></span>
+                                    </div>
+                                    <div class="text-light mb-1 small"><strong>Reason:</strong> ${sanitizeHTML(rev.reason || 'Correction of match standings')}</div>
+                                    <div class="d-flex justify-content-between text-secondary" style="font-size: 11px;">
+                                        <span>Prize Distribution: ₹${prevTotal.toLocaleString()} ➔ <strong class="text-warning">₹${newTotal.toLocaleString()}</strong> (${diff >= 0 ? '+' : ''}₹${diff.toLocaleString()})</span>
+                                        <span class="badge bg-secondary">${(rev.newResults || []).length} participants</span>
+                                    </div>
+                                </div>
+                            </div>`;
+                        }).join('');
+                    }
+                }
+
+                const registered = tData.registeredPlayers || {};
+                const scrimSlots = tData.scrimSlots || {};
+                const scrimGroups = tData.scrimGroups || {};
+                let rowsHtml = '';
+
+                if (isEditing) {
+                    existingResults.forEach(r => {
+                        rowsHtml += createResultRowHtml(r.uid || '', r.position || '', r.name || '', r.gameName || '', r.kills || 0, r.winnings || 0);
+                    });
+                } else {
+                    const participantList = [];
+
+                    // 1. Check Scrim Slots (Direct Team Bookings)
+                    if (scrimSlots && typeof scrimSlots === 'object') {
+                        Object.values(scrimSlots).forEach(slot => {
+                            if (slot && (slot.teamName || slot.captainName)) {
+                                const teamLabel = slot.teamName ? `${slot.teamName}${slot.teamTag ? ` [${slot.teamTag}]` : ''}` : (slot.captainName || 'Team');
+                                participantList.push({
+                                    uid: slot.captainUid || '',
+                                    name: teamLabel,
+                                    gameName: slot.captainName || slot.teamName || '',
+                                    isTeam: true
+                                });
+                            }
+                        });
+                    }
+
+                    // 2. Check Scrim Groups
+                    if (scrimGroups && typeof scrimGroups === 'object') {
+                        Object.values(scrimGroups).forEach(grp => {
+                            if (grp && grp.slots) {
+                                Object.values(grp.slots).forEach(slot => {
+                                    if (slot && (slot.teamName || slot.captainName)) {
+                                        const teamLabel = slot.teamName ? `${slot.teamName}${slot.teamTag ? ` [${slot.teamTag}]` : ''}` : (slot.captainName || 'Team');
+                                        participantList.push({
+                                            uid: slot.captainUid || '',
+                                            name: teamLabel,
+                                            gameName: slot.captainName || slot.teamName || '',
+                                            isTeam: true
+                                        });
+                                    }
+                                });
+                            }
+                        });
+                    }
+
+                    // 3. Check registered solo players
+                    if (Object.keys(registered).length > 0) {
+                        for (const [uid, p] of Object.entries(registered)) {
+                            // avoid duplicate if already added via scrim slot
+                            if (!participantList.some(item => item.uid === uid)) {
+                                participantList.push({
+                                    uid,
+                                    name: p.teamName || p.gameName || 'Player',
+                                    gameName: p.gameName || '',
+                                    isTeam: !!p.teamName
+                                });
+                            }
+                        }
+                    }
+
+                    if (participantList.length > 0) {
+                        let idx = 1;
+                        for (const item of participantList) {
+                            let displayName = item.name;
+                            if (item.uid && !item.isTeam) {
+                                try {
+                                    const uSnap = await get(ref(db, `users/${item.uid}`));
+                                    if (uSnap.exists()) displayName = uSnap.val()?.displayName || displayName;
+                                } catch {}
+                            }
+                            rowsHtml += createResultRowHtml(item.uid, idx, displayName, item.gameName, 0, 0);
+                            idx++;
+                        }
+                    } else {
+                        for (let i = 1; i <= 3; i++) {
+                            rowsHtml += createResultRowHtml('', i, '', '', 0, 0);
+                        }
+                    }
+                }
+
+                if (tableBody) tableBody.innerHTML = rowsHtml;
+                updateResultsPrizePoolAudit();
+            } catch (err) {
+                if (tableBody) tableBody.innerHTML = `<tr><td colspan="6" class="text-center p-3 text-danger">Error: ${err.message}</td></tr>`;
+            }
+        }
+
+        async function saveResultsAndPayout() {
+            const statusEl = getElement('resultsEntryStatus');
+            clearStatus(statusEl);
+            const saveBtn = getElement('saveResultsBtn');
+            const tournamentId = saveBtn.dataset.tournamentId;
+            const tournamentName = saveBtn.dataset.tournamentName || 'Tournament';
+            const tournamentPrizePool = parseFloat(saveBtn.dataset.tournamentPrizePool) || 0;
+            const isEditingExisting = saveBtn.dataset.hasExistingResults === 'true';
+            const originalResults = JSON.parse(saveBtn.dataset.originalResults || '[]');
+
+            if (!tournamentId) return;
+
+            const rows = document.querySelectorAll('#resultsEntryTableBody tr[data-uid]');
+            const resultsData = [];
+            const now = Date.now();
+
+            rows.forEach(row => {
+                const uid = row.dataset.uid;
+                const position = parseInt(row.querySelector('.result-position')?.value) || 0;
+                const name = row.querySelector('.result-player-name')?.value.trim() || '';
+                const gameName = row.querySelector('.result-game-name')?.value.trim() || '';
+                const kills = parseInt(row.querySelector('.result-kills')?.value) || 0;
+                const winnings = parseFloat(row.querySelector('.result-winnings')?.value) || 0;
+
+                if (name || position > 0 || winnings > 0) {
+                    resultsData.push({
+                        uid,
+                        position,
+                        name: name || 'Player',
+                        gameName,
+                        kills,
+                        winnings
+                    });
+                }
+            });
+
+            if (resultsData.length === 0) {
+                showStatus(statusEl, "Please enter at least one participant.", "warning");
+                return;
+            }
+
+            // --- PRIZE POOL VALIDATION STEP ---
+            const totalDistributed = resultsData.reduce((sum, r) => sum + (Number(r.winnings) || 0), 0);
+
+            // Validation 1: Prevent saving if distributed exceeds tournament prize pool
+            if (tournamentPrizePool > 0 && totalDistributed > tournamentPrizePool) {
+                const excess = totalDistributed - tournamentPrizePool;
+                showStatus(
+                    statusEl,
+                    `⛔ Validation Error: Cannot save results. Total distributed prize (₹${totalDistributed.toLocaleString()}) exceeds the defined Tournament Prize Pool (₹${tournamentPrizePool.toLocaleString()}) by ₹${excess.toLocaleString()}. Please adjust player winnings before saving.`,
+                    "danger"
+                );
+                updateResultsPrizePoolAudit();
+                return;
+            }
+
+            // Validation 2: Warn admin if distributed is lower than tournament prize pool
+            if (tournamentPrizePool > 0 && totalDistributed < tournamentPrizePool) {
+                const undistributed = tournamentPrizePool - totalDistributed;
+                const confirmed = window.confirm(
+                    `⚠️ Prize Pool Warning:\n\n` +
+                    `Tournament Prize Pool: ₹${tournamentPrizePool.toLocaleString()}\n` +
+                    `Total Distributed:    ₹${totalDistributed.toLocaleString()}\n` +
+                    `Undistributed Amount: ₹${undistributed.toLocaleString()}\n\n` +
+                    `The total distributed winnings in rows (₹${totalDistributed.toLocaleString()}) is lower than the tournament's configured prize pool (₹${tournamentPrizePool.toLocaleString()}).\n\n` +
+                    `Do you want to proceed and distribute ₹${totalDistributed.toLocaleString()} to participants?`
+                );
+                if (!confirmed) {
+                    showStatus(statusEl, `Save cancelled. You can adjust row prizes to match the ₹${tournamentPrizePool.toLocaleString()} prize pool.`, "warning");
+                    updateResultsPrizePoolAudit();
+                    return;
+                }
+            }
+
+            // Prompt / retrieve edit reason if editing existing results
+            let editReason = 'Correction of tournament standings';
+            if (isEditingExisting) {
+                const inputReason = getElement('resultsEditReason')?.value.trim();
+                if (inputReason) {
+                    editReason = inputReason;
+                } else {
+                    const promptedReason = window.prompt("Please enter a short reason for this results edit (e.g., 'Position adjustment', 'Corrected kill counts'):", "Results correction by admin");
+                    if (promptedReason === null) {
+                        showStatus(statusEl, "Edit cancelled. A revision reason is required for audit history.", "warning");
+                        return;
+                    }
+                    editReason = promptedReason.trim() || 'Results correction by admin';
+                }
+            }
+
+            resultsData.sort((a, b) => (a.position || 999) - (b.position || 999));
+
+            showLoader(true);
+            saveBtn.disabled = true;
+
+            const updates = {};
+            updates[`tournaments/${tournamentId}/results`] = resultsData;
+            updates[`tournaments/${tournamentId}/status`] = 'result';
+            updates[`tournaments/${tournamentId}/winningsDistributed`] = true;
+            updates[`tournaments/${tournamentId}/distributedAt`] = now;
+            updates[`tournaments/${tournamentId}/updatedAt`] = now;
+            updates[`tournaments/${tournamentId}/totalDistributed`] = totalDistributed;
+
+            // Record Revision History Log Entry
+            if (isEditingExisting) {
+                const historyKey = push(ref(db, `tournaments/${tournamentId}/resultsEditHistory`)).key;
+                const oldPrizeTotal = originalResults.reduce((s, r) => s + (Number(r.winnings) || 0), 0);
+                updates[`tournaments/${tournamentId}/resultsEditHistory/${historyKey}`] = {
+                    id: historyKey,
+                    editedAt: now,
+                    editedBy: currentAdminUser?.email || 'admin',
+                    reason: editReason,
+                    previousResults: originalResults,
+                    newResults: resultsData,
+                    previousPrizeTotal: oldPrizeTotal,
+                    newPrizeTotal: totalDistributed,
+                    summary: `Revision by ${currentAdminUser?.email || 'admin'}. Reason: ${editReason}. Prize: ₹${oldPrizeTotal} ➔ ₹${totalDistributed}`
+                };
+            }
+
+            let totalPayout = 0;
+            let creditedUsersCount = 0;
+
+            try {
+                // Fetch all users to match accounts and credit/adjust winnings
+                const usersSnap = await get(ref(db, 'users'));
+                const usersMap = {};
+                if (usersSnap.exists()) {
+                    usersSnap.forEach(c => { usersMap[c.key] = { ...c.val(), key: c.key }; });
+                }
+
+                // If editing existing results, build a lookup of previous winnings per resolved user or identifier
+                const oldPrizesByUid = {};
+                if (isEditingExisting && Array.isArray(originalResults)) {
+                    originalResults.forEach(oldR => {
+                        let uid = (oldR.uid && !oldR.uid.startsWith('custom_') && usersMap[oldR.uid]) ? oldR.uid : null;
+                        if (!uid) {
+                            const needle = (oldR.gameName || oldR.name || '').toLowerCase();
+                            for (const [k, u] of Object.entries(usersMap)) {
+                                if ((u.gameName && u.gameName.toLowerCase() === needle) || (u.displayName && u.displayName.toLowerCase() === needle)) {
+                                    uid = k;
+                                    break;
+                                }
+                            }
+                        }
+                        if (uid) {
+                            oldPrizesByUid[uid] = Number(oldR.winnings || 0);
+                        }
+                    });
+                }
+
+                for (const r of resultsData) {
+                    let targetUid = (r.uid && !r.uid.startsWith('custom_') && usersMap[r.uid]) ? r.uid : null;
+
+                    // Match by gameName, displayName, or scrim team
+                    if (!targetUid) {
+                        const needle = (r.gameName || r.name || '').toLowerCase().trim();
+                        for (const [k, u] of Object.entries(usersMap)) {
+                            if ((u.gameName && u.gameName.toLowerCase().trim() === needle) || (u.displayName && u.displayName.toLowerCase().trim() === needle) || (u.mobile && u.mobile === needle)) {
+                                targetUid = k;
+                                break;
+                            }
+                        }
+                    }
+
+                    // If still unresolved, match by scrim slot team name or captain
+                    if (!targetUid) {
+                        const needle = (r.name || r.gameName || '').toLowerCase().trim();
+                        try {
+                            const curTSnap = await get(ref(db, `tournaments/${tournamentId}`));
+                            if (curTSnap.exists()) {
+                                const curT = curTSnap.val();
+                                const sSlots = curT.scrimSlots || {};
+                                for (const sl of Object.values(sSlots)) {
+                                    if (sl && sl.captainUid) {
+                                        const tName = (sl.teamName || '').toLowerCase().trim();
+                                        const tTag = (sl.teamTag || '').toLowerCase().trim();
+                                        const cName = (sl.captainName || '').toLowerCase().trim();
+                                        if ((tName && tName === needle) || (tTag && tTag === needle) || (cName && cName === needle) || (tName && needle.includes(tName))) {
+                                            targetUid = sl.captainUid;
+                                            break;
+                                        }
+                                    }
+                                }
+                                if (!targetUid && curT.scrimGroups) {
+                                    for (const grp of Object.values(curT.scrimGroups)) {
+                                        if (grp && grp.slots) {
+                                            for (const sl of Object.values(grp.slots)) {
+                                                if (sl && sl.captainUid) {
+                                                    const tName = (sl.teamName || '').toLowerCase().trim();
+                                                    const tTag = (sl.teamTag || '').toLowerCase().trim();
+                                                    const cName = (sl.captainName || '').toLowerCase().trim();
+                                                    if ((tName && tName === needle) || (tTag && tTag === needle) || (cName && cName === needle) || (tName && needle.includes(tName))) {
+                                                        targetUid = sl.captainUid;
+                                                        break;
+                                                    }
+                                                }
+                                            }
+                                        }
+                                        if (targetUid) break;
+                                    }
+                                }
+                            }
+                        } catch {}
+                    }
+
+                    if (targetUid) {
+                        const user = usersMap[targetUid];
+                        const prevBal = Number(user.balance || 0);
+                        const prevWin = Number(user.winningCash || 0);
+                        const prevEarnings = Number(user.totalEarnings || 0);
+
+                        if (isEditingExisting) {
+                            // Calculate Delta Adjustment
+                            const oldWinning = oldPrizesByUid[targetUid] || 0;
+                            const delta = r.winnings - oldWinning;
+
+                            if (delta !== 0) {
+                                const newBal = prevBal + delta;
+                                const newWin = Math.max(0, prevWin + delta);
+                                const newEarnings = Math.max(0, prevEarnings + delta);
+
+                                updates[`users/${targetUid}/balance`] = newBal;
+                                updates[`users/${targetUid}/winningCash`] = newWin;
+                                updates[`users/${targetUid}/totalEarnings`] = newEarnings;
+
+                                const txKey = push(ref(db, `transactions/${targetUid}`)).key;
+                                updates[`transactions/${targetUid}/${txKey}`] = {
+                                    type: delta > 0 ? 'admin_winning_add' : 'admin_winning_deduct',
+                                    amount: Math.abs(delta),
+                                    timestamp: now,
+                                    description: `Prize Revision (${delta > 0 ? '+' : ''}₹${delta}): ${tournamentName} (Rank #${r.position}). Reason: ${editReason}`,
+                                    status: 'completed',
+                                    balanceAfter: newBal,
+                                    tournamentId
+                                };
+
+                                const notifKey = push(ref(db, 'notifications')).key;
+                                updates[`notifications/${notifKey}`] = {
+                                    title: '📝 Tournament Results Revised',
+                                    message: `Results for "${tournamentName}" were revised by admin. Prize adjustment: ${delta > 0 ? '+' : ''}₹${delta}. Reason: ${editReason}.`,
+                                    target: targetUid,
+                                    timestamp: now,
+                                    sentBy: 'admin'
+                                };
+
+                                creditedUsersCount++;
+                                usersMap[targetUid].balance = newBal;
+                                usersMap[targetUid].winningCash = newWin;
+                            }
+                        } else {
+                            // First time results posting
+                            const newBal = prevBal + r.winnings;
+                            const newWin = prevWin + r.winnings;
+
+                            updates[`users/${targetUid}/totalMatches`] = (user.totalMatches || 0) + 1;
+                            if (r.position === 1) {
+                                updates[`users/${targetUid}/wonMatches`] = (user.wonMatches || 0) + 1;
+                            }
+
+                            if (r.winnings > 0) {
+                                updates[`users/${targetUid}/balance`] = newBal;
+                                updates[`users/${targetUid}/winningCash`] = newWin;
+                                updates[`users/${targetUid}/totalEarnings`] = prevEarnings + r.winnings;
+
+                                const txKey = push(ref(db, `transactions/${targetUid}`)).key;
+                                updates[`transactions/${targetUid}/${txKey}`] = {
+                                    type: 'tournament_winnings',
+                                    amount: r.winnings,
+                                    timestamp: now,
+                                    description: `Winnings: ${tournamentName} (Rank #${r.position}, ${r.kills} Kills)`,
+                                    status: 'completed',
+                                    balanceAfter: newBal,
+                                    tournamentId
+                                };
+
+                                const notifKey = push(ref(db, 'notifications')).key;
+                                updates[`notifications/${notifKey}`] = {
+                                    title: '🏆 Tournament Prize Credited!',
+                                    message: `Congratulations! ₹${r.winnings} prize credited for Rank #${r.position} in "${tournamentName}".`,
+                                    target: targetUid,
+                                    timestamp: now,
+                                    sentBy: 'admin'
+                                };
+
+                                totalPayout += r.winnings;
+                                creditedUsersCount++;
+                                usersMap[targetUid].balance = newBal;
+                                usersMap[targetUid].winningCash = newWin;
+                            }
+                        }
+                    }
+                }
+
+                await update(ref(db), updates);
+
+                const msg = isEditingExisting
+                    ? `Results updated & revision logged to history! Adjusted wallets for ${creditedUsersCount} player(s).`
+                    : `Results saved! Automatically credited ₹${totalPayout} across ${creditedUsersCount} player wallet(s).`;
+
+                showStatus(getElement('tournamentsStatus'), msg, "success", 5000);
+                bootstrap.Modal.getInstance(getElement('resultsEntryModal'))?.hide();
+                loadTournaments();
+                loadDashboardStats();
+            } catch (err) {
+                console.error("Payout error:", err);
+                showStatus(statusEl, `Failed to distribute: ${err.message}`, "danger");
+            } finally {
+                showLoader(false);
+                saveBtn.disabled = false;
+            }
+        }
+
+        // --- LOAD OTHER SECTIONS ---
+        async function loadGames() {
+            if (!db) return;
+            const tbody = getElement('gamesTableBody');
+            if (!tbody) return;
+            try {
+                const snap = await get(ref(db, 'games'));
+                gameDataCache = {};
+                let html = '';
+                if (snap.exists()) {
+                    snap.forEach(c => {
+                        const g = c.val();
+                        gameDataCache[c.key] = g.name || c.key;
+                        html += `<tr>
+                            <td><img src="${sanitizeHTML(g.imageUrl || '')}" class="preview-img" alt="" onerror="this.src='https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=800'"></td>
+                            <td>${sanitizeHTML(g.name)}</td>
+                            <td><small class="text-muted">${c.key}</small></td>
+                            <td><button class="btn btn-sm btn-danger" onclick="deleteGame('${c.key}')"><i class="bi bi-trash"></i></button></td>
+                        </tr>`;
+                    });
+                }
+                tbody.innerHTML = html || '<tr><td colspan="4" class="text-center p-3 text-muted">No games yet.</td></tr>';
+            } catch {}
+        }
+
+        async function loadPromotions() {
+            if (!db) return;
+            const tbody = getElement('promotionsTableBody');
+            if (!tbody) return;
+            try {
+                const snap = await get(ref(db, 'promotions'));
+                let html = '';
+                if (snap.exists()) {
+                    snap.forEach(c => {
+                        const p = c.val();
+                        html += `<tr>
+                            <td><img src="${sanitizeHTML(p.imageUrl || '')}" class="preview-img" alt=""></td>
+                            <td>${p.link ? `<a href="${sanitizeHTML(p.link)}" target="_blank" class="text-info">${sanitizeHTML(p.link)}</a>` : 'N/A'}</td>
+                            <td><button class="btn btn-sm btn-danger" onclick="deletePromotion('${c.key}')"><i class="bi bi-trash"></i></button></td>
+                        </tr>`;
+                    });
+                }
+                tbody.innerHTML = html || '<tr><td colspan="3" class="text-center p-3 text-muted">No promotions yet.</td></tr>';
+            } catch {}
+        }
+
+        async function loadUsers() {
+            if (!db) return;
+            const tbody = getElement('usersTableBody');
+            if (!tbody) return;
+            try {
+                const snap = await get(ref(db, 'users'));
+                let html = '';
+                if (snap.exists()) {
+                    const list = [];
+                    snap.forEach(c => list.push({ uid: c.key, ...c.val() }));
+                    list.forEach(u => {
+                        html += `<tr>
+                            <td><small class="text-muted">${u.uid}</small></td>
+                            <td>${sanitizeHTML(u.displayName || 'N/A')}</td>
+                            <td>${sanitizeHTML(u.mobile || u.email?.split('@')[0] || 'N/A')}</td>
+                            <td>${formatCurrency(u.balance)}</td>
+                            <td><span class="badge bg-${u.status === 'blocked' ? 'danger' : 'success'}">${u.status || 'active'}</span></td>
+                            <td>
+                                <button class="btn btn-sm btn-info btn-view-user" data-id="${u.uid}"><i class="bi bi-eye"></i></button>
+                            </td>
+                        </tr>`;
+                    });
+                }
+                tbody.innerHTML = html || '<tr><td colspan="6" class="text-center p-3 text-muted">No users found.</td></tr>';
+            } catch {}
+        }
+
+        async function loadWithdrawals(status = 'pending') {
+            if (!db) return;
+            const tbody = getElement(`${status}WithdrawalsTableBody`);
+            if (!tbody) return;
+            try {
+                const snap = await get(ref(db, 'withdrawals'));
+                let html = '';
+                if (snap.exists()) {
+                    const list = [];
+                    snap.forEach(c => {
+                        const v = c.val();
+                        if (v.status === status) list.push({ id: c.key, ...v });
+                    });
+                    list.sort((a, b) => (b.requestTimestamp || 0) - (a.requestTimestamp || 0));
+
+                    list.forEach(w => {
+                        html += `<tr>
+                            <td>${formatDate(w.requestTimestamp)}</td>
+                            <td>${sanitizeHTML(w.userName || w.userId)}</td>
+                            <td><strong class="text-warning">${formatCurrency(w.amount)}</strong></td>
+                            <td>${sanitizeHTML(w.methodDetails?.accountInfo || w.method || 'JazzCash')}</td>
+                            <td>
+                                ${status === 'pending' ? `
+                                    <button class="btn btn-sm btn-success btn-approve-withdrawal" data-id="${w.id}"><i class="bi bi-check-lg"></i> Approve</button>
+                                    <button class="btn btn-sm btn-danger btn-reject-withdrawal" data-id="${w.id}"><i class="bi bi-x-lg"></i> Reject</button>
+                                ` : (w.adminNote || w.rejectReason || 'Processed')}
+                            </td>
+                        </tr>`;
+                    });
+                }
+                tbody.innerHTML = html || `<tr><td colspan="5" class="text-center p-3 text-muted">No ${status} withdrawals.</td></tr>`;
+            } catch {}
+        }
+
+        async function loadDepositRequests(status = 'pending') {
+            if (!db) return;
+            const tbody = getElement('depositsTableBody');
+            if (!tbody) return;
+            try {
+                const snap = await get(ref(db, 'depositRequests'));
+                let html = '';
+                if (snap.exists()) {
+                    const list = [];
+                    snap.forEach(c => {
+                        const v = c.val();
+                        if (v.status === status) list.push({ id: c.key, ...v });
+                    });
+                    list.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+
+                    list.forEach(r => {
+                        const screenshotBtn = r.screenshotUrl
+                            ? `<button class="btn btn-sm btn-info btn-view-screenshot" data-url="${r.screenshotUrl}"><i class="bi bi-image"></i> View Proof</button>`
+                            : (r.transactionId || 'N/A');
+
+                        html += `<tr>
+                            <td>${formatDate(r.timestamp)}</td>
+                            <td>${sanitizeHTML(r.userName || r.userId)}</td>
+                            <td><strong class="text-success">${formatCurrency(r.amount)}</strong></td>
+                            <td>${screenshotBtn}</td>
+                            <td>
+                                ${status === 'pending' ? `
+                                    <button class="btn btn-sm btn-success btn-approve-deposit" data-id="${r.id}"><i class="bi bi-check-circle"></i> Approve</button>
+                                    <button class="btn btn-sm btn-danger btn-reject-deposit" data-id="${r.id}"><i class="bi bi-x-circle"></i> Reject</button>
+                                ` : r.status}
+                            </td>
+                        </tr>`;
+                    });
+                }
+                tbody.innerHTML = html || `<tr><td colspan="5" class="text-center p-3 text-muted">No ${status} deposits.</td></tr>`;
+            } catch {}
+        }
+
+        async function loadSettings() {
+            if (!db) return;
+            try {
+                const snap = await get(ref(db, 'settings'));
+                if (snap.exists()) {
+                    appSettings = snap.val();
+                    if (getElement('settingAppName')) getElement('settingAppName').value = appSettings.appName || '';
+                    if (getElement('settingLogoUrl')) getElement('settingLogoUrl').value = appSettings.logoUrl || '';
+                    if (getElement('settingMinWithdraw')) getElement('settingMinWithdraw').value = appSettings.minWithdraw || 50;
+                    if (getElement('settingReferralBonus')) getElement('settingReferralBonus').value = appSettings.referralBonus || 10;
+                    if (getElement('settingSupportContact')) getElement('settingSupportContact').value = appSettings.supportContact || '';
+                    if (getElement('settingUpiDetails')) getElement('settingUpiDetails').value = appSettings.upiDetails || '';
+                    if (getElement('settingJazzCashName')) getElement('settingJazzCashName').value = appSettings.jazzCashName || '';
+                    if (getElement('settingPolicyPrivacy')) getElement('settingPolicyPrivacy').value = appSettings.policyPrivacy || '';
+                    if (getElement('settingPolicyTerms')) getElement('settingPolicyTerms').value = appSettings.policyTerms || '';
+                    if (getElement('settingPolicyRefund')) getElement('settingPolicyRefund').value = appSettings.policyRefund || '';
+                    if (getElement('settingPolicyFairPlay')) getElement('settingPolicyFairPlay').value = appSettings.policyFairPlay || '';
+                    if (getElement('settingMaintenanceMode')) getElement('settingMaintenanceMode').checked = appSettings.maintenanceMode || false;
+                    if (getElement('settingMaintenanceNotice')) getElement('settingMaintenanceNotice').value = appSettings.maintenanceNotice || '';
+                }
+            } catch {}
+        }
+
+        async function loadThemeSettings() {
+            if (!db) return;
+            try {
+                const snap = await get(ref(db, 'settings/currentTheme'));
+                if (snap.exists() && getElement('settingThemeSelect')) {
+                    getElement('settingThemeSelect').value = snap.val() || 'normal';
+                }
+            } catch {}
+        }
+
+        async function loadNotifications() {
+            if (!db) return;
+            const tbody = getElement('notificationsTableBody');
+            if (!tbody) return;
+            try {
+                const snap = await get(ref(db, 'notifications'));
+                let html = '';
+                if (snap.exists()) {
+                    const list = [];
+                    snap.forEach(c => list.push({ id: c.key, ...c.val() }));
+                    list.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+                    list.forEach(n => {
+                        html += `<tr>
+                            <td>${formatDate(n.timestamp)}</td>
+                            <td><strong>${sanitizeHTML(n.title)}</strong></td>
+                            <td>${sanitizeHTML(n.message)}</td>
+                            <td><span class="badge bg-info">${n.target || 'all'}</span></td>
+                            <td><button class="btn btn-sm btn-danger" onclick="deleteNotification('${n.id}')"><i class="bi bi-trash"></i></button></td>
+                        </tr>`;
+                    });
+                }
+                tbody.innerHTML = html || '<tr><td colspan="5" class="text-center p-3 text-muted">No notifications sent yet.</td></tr>';
+            } catch {}
+        }
+
+        async function loadSupportThreads() {
+            if (!db) return;
+            const listEl = getElement('adminChatThreadsList');
+            if (!listEl) return;
+            try {
+                const snap = await get(ref(db, 'supportChats'));
+                let html = '';
+                if (snap.exists()) {
+                    snap.forEach(c => {
+                        const meta = c.val()?.meta;
+                        if (meta) {
+                            html += `<div class="p-2 mb-1 rounded bg-dark border border-secondary" style="cursor:pointer;" onclick="openChatThread('${meta.userId}', '${meta.userName}')">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <strong class="text-warning small">${sanitizeHTML(meta.userName)}</strong>
+                                    ${meta.unreadByAdmin ? '<span class="badge bg-danger">New</span>' : ''}
+                                </div>
+                                <div class="text-secondary small text-truncate">${sanitizeHTML(meta.lastMessage || '')}</div>
+                            </div>`;
+                        }
+                    });
+                }
+                listEl.innerHTML = html || '<div class="text-center p-3 text-muted">No live chats.</div>';
+            } catch {}
+        }
+
+        async function loadPaymentMethods() {
+            if (!db) return;
+            const tbody = getElement('paymentMethodsTableBody');
+            if (!tbody) return;
+            try {
+                const snap = await get(ref(db, 'paymentMethods'));
+                let html = '';
+                if (snap.exists()) {
+                    snap.forEach(c => {
+                        const m = c.val();
+                        html += `<tr>
+                            <td><img src="${sanitizeHTML(m.logoUrl)}" class="preview-img" alt=""></td>
+                            <td>${sanitizeHTML(m.name)}</td>
+                            <td>${sanitizeHTML(m.accountDetails || 'N/A')}</td>
+                            <td><span class="badge bg-${m.enabled ? 'success' : 'danger'}">${m.enabled ? 'Yes' : 'No'}</span></td>
+                            <td><button class="btn btn-sm btn-danger" onclick="deletePaymentMethod('${c.key}')"><i class="bi bi-trash"></i></button></td>
+                        </tr>`;
+                    });
+                }
+                tbody.innerHTML = html || '<tr><td colspan="5" class="text-center p-3 text-muted">No payment methods configured.</td></tr>';
+            } catch {}
+        }
+
+        async function loadPaymentIds() {
+            if (!db) return;
+            const tbody = getElement('paymentIdsTableBody');
+            if (!tbody) return;
+            try {
+                const snap = await get(ref(db, 'paymentIds'));
+                let html = '';
+                if (snap.exists()) {
+                    snap.forEach(c => {
+                        const id = c.key;
+                        const data = c.val();
+                        html += `<tr>
+                            <td><strong>${id}</strong></td>
+                            <td>${formatCurrency(data.amount)}</td>
+                            <td><span class="badge bg-${data.status === 'available' ? 'success' : 'secondary'}">${data.status}</span></td>
+                            <td>${formatDate(data.createdAt)}</td>
+                            <td>${sanitizeHTML(data.usedBy || 'N/A')}</td>
+                            <td>${formatDate(data.usedAt)}</td>
+                            <td><button class="btn btn-sm btn-danger" onclick="deletePaymentId('${id}')"><i class="bi bi-trash"></i></button></td>
+                        </tr>`;
+                    });
+                }
+                tbody.innerHTML = html || '<tr><td colspan="7" class="text-center p-3 text-muted">No payment IDs found.</td></tr>';
+            } catch {}
+        }
+
+        // --- GLOBAL EVENT LISTENERS ---
+        document.addEventListener('DOMContentLoaded', () => {
+            // Sidebar Navigation
+            querySelAll('#adminSidebar .nav-link').forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const sec = link.dataset.section;
+                    if (sec) showAdminSection(sec);
+                });
+            });
+
+            // Bottom Navigation
+            querySelAll('.admin-bottom-nav .admin-nav-item').forEach(item => {
+                item.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const sec = item.dataset.section;
+                    if (sec) showAdminSection(sec);
+                });
+            });
+
+            // Results Save Button & Real-time Auditor Listeners
+            getElement('saveResultsBtn')?.addEventListener('click', saveResultsAndPayout);
+            getElement('addResultRowBtn')?.addEventListener('click', () => {
+                const tbody = getElement('resultsEntryTableBody');
+                if (tbody) {
+                    const nextPos = tbody.querySelectorAll('tr').length + 1;
+                    tbody.insertAdjacentHTML('beforeend', createResultRowHtml('', nextPos, '', '', 0, 0));
+                    updateResultsPrizePoolAudit();
+                }
+            });
+
+            const resultsTbody = getElement('resultsEntryTableBody');
+            if (resultsTbody) {
+                resultsTbody.addEventListener('input', (e) => {
+                    if (e.target.classList.contains('result-winnings')) {
+                        updateResultsPrizePoolAudit();
+                    }
+                });
+                resultsTbody.addEventListener('click', (e) => {
+                    if (e.target.closest('button')?.classList.contains('btn-outline-danger')) {
+                        setTimeout(updateResultsPrizePoolAudit, 50);
+                    }
+                });
+            }
+
+            // Theme Save Button
+            getElement('saveThemeBtn')?.addEventListener('click', async () => {
+                const sel = getElement('settingThemeSelect');
+                if (!sel || !db) return;
+                const chosenTheme = sel.value;
+                const statusDiv = getElement('themeStatus');
+                showLoader(true);
+                try {
+                    await set(ref(db, 'settings/currentTheme'), chosenTheme);
+                    showStatus(statusDiv, `Platform theme successfully updated to "${chosenTheme}". All user interfaces and tournament results now render with this theme.`, 'success');
+                } catch (err) {
+                    showStatus(statusDiv, `Error saving theme: ${err.message}`, 'danger');
+                } finally {
+                    showLoader(false);
+                }
+            });
+
+            // Table Delegated Click Handler
+            document.body.addEventListener('click', (e) => {
+                const btn = e.target.closest('button');
+                if (!btn) return;
+
+                if (btn.classList.contains('btn-enter-results')) {
+                    openResultsEntryModal(btn.dataset.id, btn.dataset.name);
+                } else if (btn.classList.contains('btn-view-screenshot')) {
+                    const url = btn.dataset.url;
+                    const img = getElement('screenshotModalImage');
+                    if (img && url) {
+                        img.src = url;
+                        bootstrap.Modal.getOrCreateInstance(getElement('screenshotModal'))?.show();
+                    }
+                }
+            });
+
+            // Auth State Listener
+            onAuthStateChanged(auth, user => {
+                if (user) {
+                    currentAdminUser = user;
+                    if (getElement('auth-container')) getElement('auth-container').style.display = 'none';
+                    if (getElement('admin-main-area')) getElement('admin-main-area').style.display = 'block';
+                    if (getElement('adminUserEmailShort')) getElement('adminUserEmailShort').textContent = user.email || 'Admin';
+                    loadDashboardStats();
+                    loadTournaments();
+                } else {
+                    if (getElement('auth-container')) getElement('auth-container').style.display = 'block';
+                    if (getElement('admin-login-section')) getElement('admin-login-section').style.display = 'block';
+                    if (getElement('admin-main-area')) getElement('admin-main-area').style.display = 'none';
+                }
+            });
+
+            // Login Form
+            getElement('adminLoginForm')?.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const email = getElement('adminEmail')?.value;
+                const pass = getElement('adminPassword')?.value;
+                showLoader(true);
+                try {
+                    await signInWithEmailAndPassword(auth, email, pass);
+                } catch (err) {
+                    showStatus(getElement('adminLoginStatus'), err.message, 'danger');
+                } finally {
+                    showLoader(false);
+                }
+            });
+
+            // Logout Button
+            getElement('adminLogoutBtnHeader')?.addEventListener('click', () => {
+                signOut(auth);
+            });
+        });
+    </script>
+</body>
+</html>
